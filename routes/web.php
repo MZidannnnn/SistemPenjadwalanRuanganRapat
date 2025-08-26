@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -8,7 +9,11 @@ Route::get('/', function () {
 });
 
 // Route untuk menampilkan halaman login
-Route::get('/login', [AuthController::class, 'create'])->name('login');
+Route::get('/login', [AuthController::class, 'index'])->name('login');
 
 // Route untuk memproses form login
 Route::post('/login', [AuthController::class, 'store']);
+
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware('auth') // Middleware 'auth' memastikan hanya user terautentikasi yang bisa masuk
+    ->name('dashboard');

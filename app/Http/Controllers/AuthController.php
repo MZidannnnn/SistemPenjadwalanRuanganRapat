@@ -10,7 +10,7 @@ class AuthController extends Controller
     /**
      * Menampilkan halaman login.
      */
-    public function create()
+    public function index()
     {
         return view('auth.login');
     }
