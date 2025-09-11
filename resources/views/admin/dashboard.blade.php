@@ -23,12 +23,20 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-direction: column;
         }
 
         .selected-date {
             background-color: #5B8DEF;
             color: white;
             border-radius: 8px;
+        }
+
+        .today-date {
+            background-color: #EF4444;
+            color: white;
+            border-radius: 8px;
+            font-weight: bold;
         }
 
         .detail-button {
@@ -70,14 +78,22 @@
 
             {{-- Tombol Keluar Kanan --}}
             <div>
-                <a href="#" class="flex items-center space-x-2 hover:text-gray-300 transition duration-150">
-                    <img src="{{ asset('images/icons8-logout-24.png') }}" alt="Keluar" class="h-5 w-5">
-                    <span>Keluar</span>
-                </a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
+                        class="flex items-center space-x-2 hover:text-gray-300 transition duration-150">
+
+                        <img src="{{ asset('images/icons8-logout-24.png') }}" alt="Keluar" class="h-5 w-5">
+                        <span>Keluar</span>
+                    </a>
+                </form>
             </div>
 
         </div>
     </nav>
+
+
 
     {{-- Main Content Area --}}
     <main class="container mx-auto p-6">
@@ -108,13 +124,13 @@
 
                 {{-- Days of Week Header --}}
                 <div class="grid grid-cols-7 gap-1 mb-2">
-                    <div class="text-center text-gray-400 text-sm py-2">Mo</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Tu</div>
-                    <div class="text-center text-gray-400 text-sm py-2">We</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Th</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Fr</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Sa</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Su</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Sen</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Sel</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Rab</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Kam</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Jum</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Sab</div>
+                    <div class="text-center text-gray-400 text-sm py-2">Min</div>
                 </div>
 
                 {{-- Calendar Grid --}}
@@ -138,7 +154,7 @@
             {{-- Header Jadwal --}}
             <div>
                 <h2 class="text-xl font-bold text-gray-800">Jadwal Ruangan Hari Ini</h2>
-                <p class="text-gray-500 mt-1">{{ \Carbon\Carbon::now()->translatedFormat('l, d F Y') }}</p>
+                <p id="currentDate" class="text-gray-500 mt-1">Loading...</p>
             </div>
 
             {{-- Kolom Pencarian --}}
@@ -152,7 +168,7 @@
                                 clip-rule="evenodd" />
                         </svg>
                     </span>
-                    <input type="text" placeholder="Search"
+                    <input type="text" placeholder="Cari jadwal..."
                         class="w-full md:w-1/3 pl-10 pr-4 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
             </div>
@@ -181,7 +197,6 @@
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200">
-                            {{-- CONTOH DATA STATIS, NANTI GANTI DENGAN LOOPING DARI DATABASE --}}
                             <tr class="hover:bg-gray-50">
                                 <td class="py-4 px-6 text-sm font-medium text-gray-900">Command Center</td>
                                 <td class="py-4 px-6 text-sm text-gray-500">Blok A</td>
@@ -206,7 +221,6 @@
                                     </span>
                                 </td>
                             </tr>
-                            {{-- Akhir dari contoh data statis --}}
                         </tbody>
                     </table>
                 </div>
@@ -241,19 +255,21 @@
     </div>
 
     <script>
-        // Calendar variables
-        let currentMonth = 0; // January 2023
-        let currentYear = 2023;
-        let selectedDate = 7; // Default selected date
+        // Calendar variables - menggunakan tanggal hari ini
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        let selectedDate = today.getDate();
 
         // Sample meeting data (this will come from database later)
         const meetingData = {
-            '2023-01-07': [{
+            // Data untuk hari ini
+            [`${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`]: [{
                     title: 'Rapat Koordinasi Tim',
                     time: '09:00 - 11:00',
                     room: 'Ruang Rapat A',
                     attendees: 15,
-                    description: 'Pembahasan progress project Q1 2023'
+                    description: 'Pembahasan progress project bulan ini'
                 },
                 {
                     title: 'Meeting dengan Vendor',
@@ -262,23 +278,30 @@
                     attendees: 8,
                     description: 'Diskusi kerjasama pengadaan'
                 }
-            ],
-            '2023-01-15': [{
-                title: 'Presentasi Bulanan',
-                time: '10:00 - 12:00',
-                room: 'Auditorium',
-                attendees: 50,
-                description: 'Laporan kinerja bulan lalu'
-            }]
+            ]
         };
 
         const monthNames = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+
+        const dayNames = [
+            'Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'
         ];
 
         function initCalendar() {
+            // Update tanggal hari ini
+            updateCurrentDate();
             renderCalendar();
+        }
+
+        function updateCurrentDate() {
+            const today = new Date();
+            const dayName = dayNames[today.getDay()];
+            const monthName = monthNames[today.getMonth()];
+            const formattedDate = `${dayName}, ${today.getDate()} ${monthName} ${today.getFullYear()}`;
+            document.getElementById('currentDate').textContent = formattedDate;
         }
 
         function renderCalendar() {
@@ -310,15 +333,28 @@
                 const dateStr =
                     `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 const hasMeeting = meetingData[dateStr];
-                const isSelected = (currentMonth === 0 && currentYear === 2023 && day === 7);
+                const isSelected = (currentMonth === today.getMonth() && currentYear === today.getFullYear() && day ===
+                    selectedDate);
+                const isToday = (currentMonth === today.getMonth() && currentYear === today.getFullYear() && day === today
+                    .getDate());
+
+                let dayClasses = 'calendar-day cursor-pointer hover:bg-gray-100 rounded-lg transition-all';
+
+                if (isToday && !isSelected) {
+                    dayClasses += ' today-date';
+                } else if (isSelected) {
+                    dayClasses += ' selected-date';
+                }
+
+                if (hasMeeting) {
+                    dayClasses += ' font-semibold';
+                }
 
                 calendarHTML += `
                     <div onclick="selectDate(${day})" 
-                         class="calendar-day cursor-pointer hover:bg-gray-100 rounded-lg transition-all
-                                ${isSelected ? 'selected-date' : ''}
-                                ${hasMeeting ? 'font-semibold' : ''}">
+                         class="${dayClasses}">
                         ${day}
-                        ${hasMeeting ? '<div class="text-xs text-blue-500">•</div>' : ''}
+                        ${hasMeeting ? '<div class="text-xs text-blue-300">•</div>' : ''}
                     </div>
                 `;
             }
@@ -407,7 +443,7 @@
                 content.innerHTML = `
                     <div class="text-center py-8 text-gray-500">
                         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z"></path>
                         </svg>
                         <p>Tidak ada rapat pada tanggal ${selectedDate} ${monthNames[currentMonth]} ${currentYear}</p>
                     </div>

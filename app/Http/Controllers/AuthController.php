@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\RedirectResponse; // Jangan lupa import ini
+
 
 class AuthController extends Controller
 {
@@ -38,5 +40,22 @@ class AuthController extends Controller
         return back()->withErrors([
             'username' => 'Username atau password yang diberikan salah.',
         ])->onlyInput('username');
+    }
+    /**
+     * Menangani proses logout.
+     */
+    public function logout(Request $request): RedirectResponse
+    {
+        // 1. Lakukan logout user
+        Auth::logout();
+
+        // 2. Invalidate sesi user agar tidak bisa digunakan lagi
+        $request->session()->invalidate();
+
+        // 3. Buat ulang token CSRF untuk keamanan
+        $request->session()->regenerateToken();
+
+        // 4. Redirect ke halaman login
+        return redirect('/login');
     }
 }
