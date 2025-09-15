@@ -2,21 +2,38 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\RuanganController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return redirect()->route('login');
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// --- GUEST ROUTES ---
+// Rute untuk pengguna yang belum login.
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'index'])->name('login');
+    Route::post('/login', [AuthController::class, 'store']);
 });
 
-// Route untuk menampilkan halaman login
-Route::get('/login', [AuthController::class, 'index'])->name('login');
+// --- AUTHENTICATED ROUTES ---
+// Rute untuk pengguna yang sudah login.
+Route::middleware('auth')->group(function () {
+    // Redirect dari halaman utama ke dashboard jika sudah login
+    Route::get('/', function () {
+        return redirect()->route('dashboard');
+    });
 
-// Route untuk memproses logout
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-// Route untuk memproses form login
-Route::post('/login', [AuthController::class, 'store']);
+    // Semua rute terkait pengelolaan ruangan
+    Route::get('/ruangan', [RuanganController::class, 'index'])->name('ruangan.index');
+    Route::post('/ruangan', [RuanganController::class, 'store'])->name('ruangan.store');
+    Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
+    // Tambahkan rute edit, update, delete ruangan di sini
 
-Route::get('/dashboard', [DashboardController::class, 'index'])
-    ->middleware('auth') // Middleware 'auth' memastikan hanya user terautentikasi yang bisa masuk
-    ->name('dashboard');
+    // Rute untuk logout
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+});

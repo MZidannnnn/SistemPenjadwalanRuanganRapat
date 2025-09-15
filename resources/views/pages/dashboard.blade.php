@@ -1,23 +1,16 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('layouts.app')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+@section('title', 'Dashboard Admin')
+
+
+{{--  komponen Navbar --}}
+<x-navbar />
+{{-- //komponen Navbar --}}
+
+@section('content')
+
+@push('styles')
     <style>
-        body {
-            font-family: 'Poppins', sans-serif;
-        }
-
-        .bg-custom-gradient {
-            background: linear-gradient(to right, #1540AA, #0646E7);
-        }
-
         .calendar-day {
             min-height: 40px;
             display: flex;
@@ -43,190 +36,132 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         }
     </style>
-</head>
+@endpush
+    <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Admin</h1>
 
-<body class="bg-gray-100">
+    {{-- Calendar Container --}}
+    <div class="flex justify-center">
+        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
 
-    {{-- Topbar Navigation --}}
-    <nav class="bg-custom-gradient text-white shadow-md">
-        <div class="container mx-auto px-6 py-2 flex justify-between items-center">
+            {{-- Calendar Header with Navigation --}}
+            <div class="flex items-center justify-between mb-6">
+                <button onclick="previousMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                        </path>
+                    </svg>
+                </button>
 
-            {{-- Logo dan Judul Kiri --}}
-            <div class="flex items-center space-x-4">
-                <img src="{{ asset('images/logo-pemkot.png') }}" alt="Logo" class="h-12 w-12">
-                <a href="/dashboard" class="text-3xl font-bold">Dashboard</a>
+                <h2 id="currentMonthYear" class="text-lg font-semibold text-gray-800">January 2023</h2>
+
+                <button onclick="nextMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
+                        </path>
+                    </svg>
+                </button>
             </div>
 
-            {{-- Menu Tengah --}}
-            <div class="hidden md:flex items-center space-x-10">
-                <a href="#"
-                    class="flex flex-col items-center hover:text-gray-300 transition duration-150 text-xs">
-                    <img src="{{ asset('images/icons8-scheduling-32 (1).png') }}" alt="Pemesanan" class="h-6 w-6 mb-1">
-                    <span>Pemesanan</span>
-                </a>
-                <a href="#"
-                    class="flex flex-col items-center hover:text-gray-300 transition duration-150 text-xs">
-                    <img src="{{ asset('images/icons8-meeting-room-50.png') }}" alt="Ruangan" class="h-6 w-6 mb-1">
-                    <span>Ruangan</span>
-                </a>
-                <a href="#"
-                    class="flex flex-col items-center hover:text-gray-300 transition duration-150 text-xs">
-                    <img src="{{ asset('images/icons8-user-24.png') }}" alt="User" class="h-6 w-6 mb-1">
-                    <span>User</span>
-                </a>
+            {{-- Days of Week Header --}}
+            <div class="grid grid-cols-7 gap-1 mb-2">
+                <div class="text-center text-gray-400 text-sm py-2">Sen</div>
+                <div class="text-center text-gray-400 text-sm py-2">Sel</div>
+                <div class="text-center text-gray-400 text-sm py-2">Rab</div>
+                <div class="text-center text-gray-400 text-sm py-2">Kam</div>
+                <div class="text-center text-gray-400 text-sm py-2">Jum</div>
+                <div class="text-center text-gray-400 text-sm py-2">Sab</div>
+                <div class="text-center text-gray-400 text-sm py-2">Min</div>
             </div>
 
-            {{-- Tombol Keluar Kanan --}}
-            <div>
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <a href="{{ route('logout') }}" onclick="event.preventDefault(); this.closest('form').submit();"
-                        class="flex items-center space-x-2 hover:text-gray-300 transition duration-150">
-
-                        <img src="{{ asset('images/icons8-logout-24.png') }}" alt="Keluar" class="h-5 w-5">
-                        <span>Keluar</span>
-                    </a>
-                </form>
+            {{-- Calendar Grid --}}
+            <div id="calendarGrid" class="grid grid-cols-7 gap-1">
+                <!-- Calendar days will be generated here by JavaScript -->
             </div>
 
+            {{-- Detail Button --}}
+            <div class="flex justify-end mt-6">
+                <button onclick="showDetails()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
+                    Detail
+                </button>
+            </div>
         </div>
-    </nav>
+    </div>
 
+    {{-- BAGIAN JADWAL RUANGAN HARI INI --}}
+    <div class="mt-12">
 
+        {{-- Header Jadwal --}}
+        <div>
+            <h2 class="text-xl font-bold text-gray-800">Jadwal Ruangan Hari Ini</h2>
+            <p id="currentDate" class="text-gray-500 mt-1">Loading...</p>
+        </div>
 
-    {{-- Main Content Area --}}
-    <main class="container mx-auto p-6">
-        <h1 class="text-3xl font-bold text-gray-800 mb-6">Dashboard Admin</h1>
-
-        {{-- Calendar Container --}}
-        <div class="flex justify-center">
-            <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
-
-                {{-- Calendar Header with Navigation --}}
-                <div class="flex items-center justify-between mb-6">
-                    <button onclick="previousMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                            </path>
-                        </svg>
-                    </button>
-
-                    <h2 id="currentMonthYear" class="text-lg font-semibold text-gray-800">January 2023</h2>
-
-                    <button onclick="nextMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7">
-                            </path>
-                        </svg>
-                    </button>
-                </div>
-
-                {{-- Days of Week Header --}}
-                <div class="grid grid-cols-7 gap-1 mb-2">
-                    <div class="text-center text-gray-400 text-sm py-2">Sen</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Sel</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Rab</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Kam</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Jum</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Sab</div>
-                    <div class="text-center text-gray-400 text-sm py-2">Min</div>
-                </div>
-
-                {{-- Calendar Grid --}}
-                <div id="calendarGrid" class="grid grid-cols-7 gap-1">
-                    <!-- Calendar days will be generated here by JavaScript -->
-                </div>
-
-                {{-- Detail Button --}}
-                <div class="flex justify-end mt-6">
-                    <button onclick="showDetails()"
-                        class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-medium transition-colors shadow-md">
-                        Detail
-                    </button>
-                </div>
+        {{-- Kolom Pencarian --}}
+        <div class="mt-6 mb-4">
+            <div class="relative">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </span>
+                <input type="text" placeholder="Cari jadwal..."
+                    class="w-full md:w-1/3 pl-10 pr-4 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             </div>
         </div>
 
-        {{-- BAGIAN JADWAL RUANGAN HARI INI --}}
-        <div class="mt-12">
-
-            {{-- Header Jadwal --}}
-            <div>
-                <h2 class="text-xl font-bold text-gray-800">Jadwal Ruangan Hari Ini</h2>
-                <p id="currentDate" class="text-gray-500 mt-1">Loading...</p>
-            </div>
-
-            {{-- Kolom Pencarian --}}
-            <div class="mt-6 mb-4">
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </span>
-                    <input type="text" placeholder="Cari jadwal..."
-                        class="w-full md:w-1/3 pl-10 pr-4 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </div>
-
-            {{-- Tabel Jadwal --}}
-            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th
-                                    class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Ruangan</th>
-                                <th
-                                    class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Lokasi</th>
-                                <th
-                                    class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Waktu Mulai</th>
-                                <th
-                                    class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Waktu Selesai</th>
-                                <th
-                                    class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                    Status</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-200">
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-6 text-sm font-medium text-gray-900">Command Center</td>
-                                <td class="py-4 px-6 text-sm text-gray-500">Blok A</td>
-                                <td class="py-4 px-6 text-sm text-gray-500">08:00</td>
-                                <td class="py-4 px-6 text-sm text-gray-500">12:00</td>
-                                <td class="py-4 px-6 text-sm">
-                                    <span
-                                        class="bg-green-100 text-green-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                                        Selesai
-                                    </span>
-                                </td>
-                            </tr>
-                            <tr class="hover:bg-gray-50">
-                                <td class="py-4 px-6 text-sm font-medium text-gray-900">Command Center</td>
-                                <td class="py-4 px-6 text-sm text-gray-500">Blok A</td>
-                                <td class="py-4 px-6 text-sm text-gray-500">12:00</td>
-                                <td class="py-4 px-6 text-sm text-gray-500">16:00</td>
-                                <td class="py-4 px-6 text-sm">
-                                    <span
-                                        class="bg-yellow-100 text-yellow-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
-                                        Terjadwal
-                                    </span>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+        {{-- Tabel Jadwal --}}
+        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Ruangan</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Lokasi</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Waktu Mulai</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Waktu Selesai</th>
+                            <th class="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200">
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Command Center</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">Blok A</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">08:00</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">12:00</td>
+                            <td class="py-4 px-6 text-sm">
+                                <span
+                                    class="bg-green-100 text-green-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                    Selesai
+                                </span>
+                            </td>
+                        </tr>
+                        <tr class="hover:bg-gray-50">
+                            <td class="py-4 px-6 text-sm font-medium text-gray-900">Command Center</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">Blok A</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">12:00</td>
+                            <td class="py-4 px-6 text-sm text-gray-500">16:00</td>
+                            <td class="py-4 px-6 text-sm">
+                                <span
+                                    class="bg-yellow-100 text-yellow-800 px-2 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                    Terjadwal
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-    </main>
+    </div>
+
 
     {{-- Modal for Meeting Details --}}
     <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
@@ -235,8 +170,8 @@
                 <h3 class="text-xl font-bold text-gray-800">Detail Rapat</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M6 18L18 6M6 6l12 12"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
+                        </path>
                     </svg>
                 </button>
             </div>
@@ -253,7 +188,10 @@
             </div>
         </div>
     </div>
+@endsection
 
+{{-- Script Kalender --}}
+@push('scripts')
     <script>
         // Calendar variables - menggunakan tanggal hari ini
         const today = new Date();
@@ -472,7 +410,4 @@
             initCalendar();
         });
     </script>
-
-</body>
-
-</html>
+@endpush

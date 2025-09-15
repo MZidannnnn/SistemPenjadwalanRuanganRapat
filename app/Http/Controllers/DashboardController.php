@@ -21,7 +21,7 @@ class DashboardController extends Controller
         // }
         
         // Cukup tampilkan view yang sama untuk kedua role
-        return view('admin.dashboard'); 
+        return view('pages.dashboard'); 
     }
 
 }
