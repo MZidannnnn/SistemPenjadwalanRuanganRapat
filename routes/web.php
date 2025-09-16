@@ -32,6 +32,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/ruangan', [RuanganController::class, 'index'])->name('ruangan.index');
     Route::post('/ruangan', [RuanganController::class, 'store'])->name('ruangan.store');
     Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
+    Route::put('/ruangan/{ruangan}', [RuanganController::class, 'update'])->name('ruangan.update');
     // Tambahkan rute edit, update, delete ruangan di sini
 
     // Rute untuk logout

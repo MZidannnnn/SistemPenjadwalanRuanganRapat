@@ -48,4 +48,21 @@ class RuanganController extends Controller
 
         return back()->with('success', 'Ruangan berhasil dihapus!');
     }
+    public function update(Request $request, Ruangan $ruangan)
+    {
+        // Validasi data yang masuk
+        $validatedData = $request->validate([
+            'nama_ruangan' => 'required|string|max:255',
+            'lokasi' => 'required|string|max:255',
+            'kapasitas' => 'required|integer|min:1',
+            'fasilitas' => 'required|string',
+            'status' => 'required|in:tersedia,dalam perbaikan',
+        ]);
+
+        // Lakukan update pada data ruangan
+        $ruangan->update($validatedData);
+
+        // Kembali dengan pesan sukses
+        return back()->with('success', 'Data ruangan berhasil diperbarui!');
+    }
 }

@@ -89,9 +89,7 @@
         </div>
     </div>
 
-    {{-- ====================================================== --}}
-    {{-- ======== TAMBAHKAN BLOK KODE MODAL DI BAWAH INI ======== --}}
-    {{-- ====================================================== --}}
+
 
     <div id="addRoomModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-4 max-w-lg w-full">
@@ -158,11 +156,6 @@
         </div>
     </div>
 
-
-    {{-- ====================================================== --}}
-    {{-- ======== TAMBAHKAN BLOK KODE MODAL DETAIL DI SINI ======== --}}
-    {{-- ====================================================== --}}
-
     <div id="detailRoomModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-4 max-w-lg w-full">
             <div class="flex justify-between items-center mb-6">
@@ -176,62 +169,83 @@
             </div>
 
             {{-- Konten detail akan diisi oleh JavaScript --}}
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Ruangan</label>
-                    <input type="text" id="detail_nama_ruangan"
-                        class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg" readonly>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Lokasi</label>
-                    <input type="text" id="detail_lokasi"
-                        class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg" readonly>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Kapasitas</label>
-                    <input type="text" id="detail_kapasitas"
-                        class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg" readonly>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Fasilitas</label>
-                    <input type="text" id="detail_fasilitas"
-                        class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg" readonly>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-500">Status</label>
-                    <input type="text" id="detail_status"
-                        class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg" readonly>
-                </div>
-            </div>
+            <form id="editForm" action="" method="POST">
+                @csrf
+                @method('PUT')
 
-            <div class="mt-8 flex justify-end space-x-3">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Ruangan</label>
+                        <input type="text" name="nama_ruangan" id="detail_nama_ruangan"
+                            class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Lokasi</label>
+                        <input type="text" name="lokasi" id="detail_lokasi"
+                            class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Kapasitas</label>
+                        <input type="text" name="kapasitas" id="detail_kapasitas"
+                            class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Fasilitas</label>
+                        <input type="text" name="fasilitas" id="detail_fasilitas"
+                            class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-500">Status</label>
+                        <select name="status" id="edit_status"
+                            class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
+                            <option value="tersedia">Tersedia</option>
+                            <option value="dalam perbaikan">Dalam Perbaikan</option>
+                        </select>
 
-                {{-- Tombol Edit --}}
-                <button type="button"
-                    class="bg-blue-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-150">
-                    Edit
-                </button>
+                    </div>
+                </div>
 
-                {{-- Form untuk Tombol Hapus --}}
-                <form id="deleteForm" action="" method="POST">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit"
-                        class="bg-red-600 text-white font-semibold px-4 py-2 rounded-lg hover:bg-red-700 transition duration-150">
+                {{-- Perbaikan untuk tombol Edit dan Hapus --}}
+                <div class="mt-8 flex justify-end items-center space-x-3">
+
+                    {{-- Tombol Edit --}}
+                    <button type="button" onclick="openConfirmEditModal()"
+                        class="inline-flex items-center justify-center bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                            </path>
+                        </svg>
+                        Edit
+                    </button>
+
+                    <button type="button" onclick="openConfirmModal(currentRuanganId)"
+                        class="inline-flex items-center justify-center bg-red-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                            </path>
+                        </svg>
                         Hapus
                     </button>
-                </form>
+                </div>
+            </form>
 
-            </div>
         </div>
     </div>
+    <x-confirm-delete-modal />
+    <x-confirm-edit-modal />
 @endsection
+
 @push('scripts')
     <script>
         // --- Kode untuk Modal Tambah Ruangan (tetap sama) ---
         const addModal = document.getElementById('addRoomModal');
         const mainContent = document.getElementById('main-content');
         const navbar = document.getElementById('navbar');
+        let currentRuanganId = null;
+        const editModal = document.getElementById('detailRoomModal');
+
 
         function openModal() {
             addModal.classList.remove('hidden');
@@ -251,17 +265,19 @@
         const detailModal = document.getElementById('detailRoomModal');
 
         function openDetailModal(ruangan) {
+            currentRuanganId = ruangan.id_ruangan;
             const deleteForm = document.getElementById('deleteForm');
+            const editForm = document.getElementById('editForm');
             deleteForm.action = `/ruangan/${ruangan.id_ruangan}`;
-
+            editForm.action = `/ruangan/${ruangan.id_ruangan}`;
 
             // Mengisi data ke dalam form modal detail
             document.getElementById('detail_nama_ruangan').value = ruangan.nama_ruangan;
             document.getElementById('detail_lokasi').value = ruangan.lokasi;
-            document.getElementById('detail_kapasitas').value = ruangan.kapasitas + ' Orang';
+            document.getElementById('detail_kapasitas').value = ruangan.kapasitas;
             document.getElementById('detail_fasilitas').value = ruangan.fasilitas;
-            document.getElementById('detail_status').value = ruangan.status.charAt(0).toUpperCase() + ruangan.status.slice(
-                1);
+            document.getElementById('edit_status').value = ruangan.status;
+
 
             // Menampilkan modal
             detailModal.classList.remove('hidden');
