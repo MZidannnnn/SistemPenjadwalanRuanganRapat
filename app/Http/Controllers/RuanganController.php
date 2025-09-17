@@ -12,13 +12,32 @@ class RuanganController extends Controller
     /**
      * Menampilkan halaman daftar semua ruangan.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil semua data dari tabel 'ruangan'
-        $ruangans = Ruangan::all();
+        // Memulai query dasar
+        $query = Ruangan::query();
 
-        // Mengirim data ke view
+        // Cek jika ada input pencarian
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            
+            // Tambahkan kondisi pencarian ke query
+            // Mencari di beberapa kolom sekaligus
+            $query->where(function($q) use ($search) {
+                $q->where('nama_ruangan', 'like', "%{$search}%")
+                  ->orWhere('lokasi', 'like', "%{$search}%")
+                  ->orWhere('fasilitas', 'like', "%{$search}%")
+                  ->orWhere('kapasitas', 'like', "%{$search}%")
+                  ->orWhere('status', 'like', "%{$search}%");
+            });
+        }
+
+        // Ambil data hasil query dan kirim ke view
+        // $ruangans = $query->latest()->get(); // latest() untuk mengurutkan dari yang terbaru
+        $ruangans = $query->latest()->paginate(5);
+        
         return view('pages.ruangan', ['ruangans' => $ruangans]);
+
     }
 
     /**

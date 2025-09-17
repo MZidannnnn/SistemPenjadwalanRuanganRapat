@@ -1,9 +1,10 @@
 <?php
 
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\RuanganController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RuanganController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -33,7 +34,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/ruangan', [RuanganController::class, 'store'])->name('ruangan.store');
     Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
     Route::put('/ruangan/{ruangan}', [RuanganController::class, 'update'])->name('ruangan.update');
-    // Tambahkan rute edit, update, delete ruangan di sini
+
+    // Semua rute terkait pengelolaan user
+    Route::get('/user', [UserController::class, 'index'])->name('user.index');
+    Route::post('/user', [UserController::class, 'store'])->name('user.store');
+    Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
+    Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
 
     // Rute untuk logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');

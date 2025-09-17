@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Manajemen Ruangan')
+@section('title', 'Manajemen User')
 
 {{--  komponen Navbar --}}
 <x-navbar />
@@ -9,28 +9,25 @@
     <div id="main-content">
         {{-- Header Halaman --}}
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Daftar Ruangan</h1>
+            <h1 class="text-3xl font-bold text-gray-800">Daftar User</h1>
         </div>
 
         {{-- Kontrol Aksi (Search dan Tombol Tambah) --}}
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
 
-            {{-- Form Pencarian --}}
-            <form action="{{ route('ruangan.index') }}" method="GET" class="w-full md:w-1/3">
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-4">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </span>
-                    <input type="text" name="search" placeholder="Cari berdasarkan nama, lokasi, dll..."
-                        value="{{ request('search') }}"
-                        class="w-full pl-11 pr-4 py-2.5 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
-            </form>
+            {{-- Kolom Pencarian --}}
+            <div class="relative w-full md:w-1/3">
+                <span class="absolute inset-y-0 left-0 flex items-center pl-4">
+                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                        fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4-4.816A6 6 0 012 8z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </span>
+                <input type="text" placeholder="Search"
+                    class="w-full pl-11 pr-4 py-2.5 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
 
             {{-- Tombol Tambah Ruangan (diubah untuk memicu JavaScript) --}}
             <button onclick="openModal()"
@@ -40,7 +37,7 @@
                         d="M10 18a8 8 0 100-16 8 8 0 000 16zm.75-11.25a.75.75 0 00-1.5 0v2.5h-2.5a.75.75 0 000 1.5h2.5v2.5a.75.75 0 001.5 0v-2.5h2.5a.75.75 0 000-1.5h-2.5v-2.5z"
                         clip-rule="evenodd" />
                 </svg>
-                <span>Tambah Ruangan</span>
+                <span>Tambah User</span>
             </button>
         </div>
 
@@ -51,38 +48,32 @@
                     <thead class="bg-white border-b-2 border-gray-200">
                         <tr>
                             <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Ruangan</th>
+                                Nama</th>
                             <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Lokasi</th>
+                                Username</th>
                             <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Fasilitas</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Kapasitas</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Status</th>
+                                Role</th>
                         </tr>
                     </thead>
                     {{-- Ganti bagian <tbody> lama Anda dengan yang ini --}}
                     <tbody class="divide-y divide-gray-100">
-                        @forelse ($ruangans as $ruangan)
+                        @forelse ($users as $user)
                             {{-- Menambahkan onclick dan atribut data-* --}}
                             <tr class="hover:bg-gray-50 cursor-pointer"
-                                onclick="openDetailModal({{ json_encode($ruangan) }})">
-                                <td class="py-4 px-6 text-sm font-medium text-gray-800">{{ $ruangan->nama_ruangan }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->lokasi }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->fasilitas }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->kapasitas }} Orang</td>
+                                onclick="openDetailModal({{ json_encode($user) }})">
+                                <td class="py-4 px-6 text-sm font-medium text-gray-800">{{ $user->name }}</td>
+                                <td class="py-4 px-6 text-sm text-gray-600">{{ $user->username }}</td>
                                 <td class="py-4 px-6 text-sm">
                                     <span
-                                        class="{{ $ruangan->status == 'tersedia' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }} px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
-                                        {{ ucfirst($ruangan->status) }}
+                                        class="{{ $user->role == 'admin' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }} px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                        {{ ucfirst($user->role) }}
                                     </span>
                                 </td>
                             </tr>
                         @empty
                             <tr>
                                 <td colspan="5" class="py-8 px-6 text-center text-gray-500">
-                                    Belum ada data ruangan yang ditambahkan.
+                                    Belum ada data user yang ditambahkan.
                                 </td>
                             </tr>
                         @endforelse
@@ -90,20 +81,16 @@
                 </table>
             </div>
         </div>
-                <div class="mt-6">
-            {{ $ruangans->links() }}
-        </div>
-
     </div>
 
 
 
-    <div id="addRoomModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div id="addUserModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl p-6 md:p-8 m-4 max-w-lg w-full">
 
             {{-- Modal Header --}}
             <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-gray-800">Tambah Ruangan</h3>
+                <h3 class="text-xl font-bold text-gray-800">Tambah User</h3>
                 <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600">
                     <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                         stroke-width="1.5" stroke="currentColor">
@@ -117,32 +104,28 @@
                 @csrf
                 <div class="space-y-4">
                     <div>
-                        <label for="nama_ruangan" class="block text-sm font-medium text-gray-700 mb-1">Ruangan</label>
-                        <input type="text" name="nama_ruangan" id="nama_ruangan"
+                        <label for="nama" class="block text-sm font-medium text-gray-700 mb-1">Nama</label>
+                        <input type="text" name="nama" id="nama"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="lokasi" class="block text-sm font-medium text-gray-700 mb-1">Lokasi</label>
-                        <input type="text" name="lokasi" id="lokasi"
+                        <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                        <input type="text" name="username" id="username"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="kapasitas" class="block text-sm font-medium text-gray-700 mb-1">Kapasitas</label>
-                        <input type="number" name="kapasitas" id="kapasitas"
+                        <label for="password" class="block text-sm font-medium text-gray-700 mb-1">password</label>
+                        <input type="password" name="password" id="password"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="fasilitas" class="block text-sm font-medium text-gray-700 mb-1">Fasilitas</label>
-                        <input type="text" name="fasilitas" id="fasilitas"
+                        <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Role</label>
+                        <select name="role" id="role"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    </div>
-                    <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status" id="status"
-                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Pilih Status</option>
-                            <option value="tersedia">Tersedia</option>
-                            <option value="dalam perbaikan">Dalam Perbaikan</option>
+                            <option>Pilih Role</option>
+                            <option value="SKPD">SKPD</option>
+                            <option value="admin">Admin</option>
+                            <option value="pegawai">Pegawai</option>
                         </select>
                     </div>
                 </div>
@@ -247,7 +230,7 @@
 @push('scripts')
     <script>
         // --- Kode untuk Modal Tambah Ruangan (tetap sama) ---
-        const addModal = document.getElementById('addRoomModal');
+        const addModal = document.getElementById('addUserModal');
         const mainContent = document.getElementById('main-content');
         const navbar = document.getElementById('navbar');
         let currentRuanganId = null;
