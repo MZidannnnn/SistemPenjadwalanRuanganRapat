@@ -10,17 +10,8 @@ class DashboardController extends Controller
     //
         public function index()
     {
-        $user = Auth::user(); // Mengambil data user yang sedang login
-
-        // Anda bisa menambahkan logika untuk mengambil data spesifik di sini
-        // Contoh:
-        // if ($user->role == 'admin') {
-        //     $data = // Ambil data khusus admin
-        // } else {
-        //     $data = // Ambil data khusus SKPD
-        // }
+        $user = Auth::user();
         
-        // Cukup tampilkan view yang sama untuk kedua role
         return view('pages.dashboard'); 
     }
 

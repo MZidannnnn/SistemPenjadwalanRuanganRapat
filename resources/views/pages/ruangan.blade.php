@@ -113,7 +113,7 @@
             </div>
 
             {{-- Modal Body (Form) --}}
-            <form action="#" method="POST">
+            <form action="{{ route('ruangan.store') }}" method="POST">
                 @csrf
                 <div class="space-y-4">
                     <div>
@@ -226,7 +226,7 @@
                         Edit
                     </button>
 
-                    <button type="button" onclick="openConfirmModal(currentRuanganId)"
+                    <button type="button" onclick="openConfirmDeleteModal('/ruangan/' + currentRuanganId)"
                         class="inline-flex items-center justify-center bg-red-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
                         <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
