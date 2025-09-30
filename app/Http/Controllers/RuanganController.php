@@ -28,7 +28,7 @@ class RuanganController extends Controller
                   ->orWhere('lokasi', 'like', "%{$search}%")
                   ->orWhere('fasilitas', 'like', "%{$search}%")
                   ->orWhere('kapasitas', 'like', "%{$search}%")
-                  ->orWhere('status', 'like', "%{$search}%");
+                  ->orWhere('kondisi_ruangan', 'like', "%{$search}%");
             });
         }
 
@@ -51,7 +51,7 @@ class RuanganController extends Controller
             'lokasi' => 'required|string|max:255',
             'kapasitas' => 'required|integer|min:1',
             'fasilitas' => 'required|string',
-            'status' => 'required|in:tersedia,dalam perbaikan',
+            'kondisi_ruangan' => 'required|string',
         ]);
 
         // Membuat record baru di database
@@ -75,7 +75,7 @@ class RuanganController extends Controller
             'lokasi' => 'required|string|max:255',
             'kapasitas' => 'required|integer|min:1',
             'fasilitas' => 'required|string',
-            'status' => 'required|in:tersedia,dalam perbaikan',
+            'kondisi_ruangan' => 'required|string',
         ]);
 
         // Lakukan update pada data ruangan

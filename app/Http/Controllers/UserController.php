@@ -33,6 +33,7 @@ class UserController extends Controller
             'username' => ['required', 'string', 'max:255', 'unique:users'],
             'password' => ['required', 'string', 'min:8'],
             'role' => ['required', Rule::in(['admin', 'SKPD', 'pegawai'])],
+            'jabatan' => ['nullable', 'string', 'max:255'],
         ]);
 
         // 3. Buat record baru di database
@@ -49,6 +50,7 @@ class UserController extends Controller
             'username' => ['required', 'string', 'max:255', Rule::unique('users')->ignore($user->id)],
             'password' => ['nullable', 'string', 'min:8'],
             'role' => ['required', Rule::in(['admin', 'SKPD', 'pegawai'])],
+            'jabatan' => ['nullable', 'string', 'max:255'],
 
         ]);
         if (!$request->filled('password')) {

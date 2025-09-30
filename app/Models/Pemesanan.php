@@ -10,23 +10,31 @@ class Pemesanan extends Model
 {
     use HasFactory;
     protected $table = 'pemesanan';
-
-    protected $primaryKey = 'id_pemesanan';
     protected $fillable = [
         'user_id',
-        'id_ruangan',
+        'ruangan_id',
         'nama_kegiatan',
-        'tanggal_mulai',
-        'tanggal_selesai',
+        'waktu_mulai',
+        'waktu_selesai',
         'status',
-    ];
 
-    public function ruangan(): BelongsTo
+    ];
+    /**
+     * Relasi ke model User.
+     * Laravel otomatis tahu foreign key-nya 'user_id'.
+     */
+    public function user()
     {
-        return $this->belongsTo(Ruangan::class, 'id_ruangan', 'id_ruangan');
+        return $this->belongsTo(User::class);
     }
-    public function user(): BelongsTo
+
+    /**
+     * Relasi ke model Ruangan.
+     * Laravel otomatis tahu foreign key-nya 'ruangan_id'.
+     */
+    public function ruangan()
     {
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(Ruangan::class);
     }
+
 }

@@ -5,21 +5,35 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Carbon\Carbon;
+
 
 class Ruangan extends Model
 {
     use HasFactory;
     protected $table = 'ruangan';
-    protected $primaryKey = 'id_ruangan';
     protected $fillable = [
         'nama_ruangan',
         'kapasitas',
         'fasilitas',
         'lokasi',
-        'status',
+        'kondisi_ruangan',
+
     ];
-    public function pemesanans(): HasMany
+
+    public function getStatusAttribute()
     {
-        return $this->hasMany(Pemesanan::class, 'id_ruangan', 'id_ruangan');
+        $isBookedNow = $this->pemesanans()
+            ->where('waktu_mulai', '<=', Carbon::now())
+            ->where('waktu_selesai', '>=', Carbon::now())
+            ->exists();
+
+        return $isBookedNow ? 'Sedang Dipakai' : 'Tersedia';
     }
+
+    public function pemesanans()
+    {
+        return $this->hasMany(Pemesanan::class);
+    }
+
 }

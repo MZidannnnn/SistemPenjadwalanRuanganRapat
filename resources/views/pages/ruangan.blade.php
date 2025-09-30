@@ -53,13 +53,11 @@
                             <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                                 Ruangan</th>
                             <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Lokasi</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Fasilitas</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
                                 Kapasitas</th>
                             <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Status</th>
+                                Kondisi Ruangan</th>
+                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                Ketersediaan Saat Ini</th>
                         </tr>
                     </thead>
                     {{-- Ganti bagian <tbody> lama Anda dengan yang ini --}}
@@ -69,15 +67,26 @@
                             <tr class="hover:bg-gray-50 cursor-pointer"
                                 onclick="openDetailModal({{ json_encode($ruangan) }})">
                                 <td class="py-4 px-6 text-sm font-medium text-gray-800">{{ $ruangan->nama_ruangan }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->lokasi }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->fasilitas }}</td>
+                                {{-- <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->lokasi }}</td> --}}
+                                {{-- <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->fasilitas }}</td> --}}
                                 <td class="py-4 px-6 text-sm text-gray-600">{{ $ruangan->kapasitas }} Orang</td>
                                 <td class="py-4 px-6 text-sm">
+
                                     <span
-                                        class="{{ $ruangan->status == 'tersedia' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }} px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
-                                        {{ ucfirst($ruangan->status) }}
+                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                        {{ $ruangan->kondisi_ruangan == 'aktif' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800' }}">
+                                        {{ ucfirst($ruangan->kondisi_ruangan) }}
                                     </span>
                                 </td>
+                                <td class="py-4 px-6 text-sm">
+                                    {{-- Kolom Status Ketersediaan (dihitung otomatis dari accessor) --}}
+                                    <span
+                                        class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full
+                                        {{ $ruangan->status == 'Tersedia' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
+                                        {{ $ruangan->status }}
+                                    </span>
+                                </td>
+
                             </tr>
                         @empty
                             <tr>
@@ -90,7 +99,7 @@
                 </table>
             </div>
         </div>
-                <div class="mt-6">
+        <div class="mt-6">
             {{ $ruangans->links() }}
         </div>
 
@@ -137,11 +146,12 @@
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div>
-                        <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-                        <select name="status" id="status"
+                        <label for="kondisi_ruangan" class="block text-sm font-medium text-gray-700 mb-1">Kondisi
+                            Ruangan</label>
+                        <select name="kondisi_ruangan" id="kondisi_ruangan"
                             class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option>Pilih Status</option>
-                            <option value="tersedia">Tersedia</option>
+                            <option>Pilih Kondisi Ruangan</option>
+                            <option value="aktif">Aktif</option>
                             <option value="dalam perbaikan">Dalam Perbaikan</option>
                         </select>
                     </div>
@@ -202,12 +212,16 @@
                             class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-500">Status</label>
-                        <select name="status" id="edit_status"
-                            class="w-full mt-1 px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg">
-                            <option value="tersedia">Tersedia</option>
+
+                        <label for="kondisi_ruangan" class="block text-sm font-medium text-gray-700 mb-1">Kondisi
+                            Ruangan</label>
+                        <select name="kondisi_ruangan" id="edit_kondisi_ruangan"
+                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option>Pilih Kondisi Ruangan</option>
+                            <option value="aktif">Aktif</option>
                             <option value="dalam perbaikan">Dalam Perbaikan</option>
                         </select>
+
 
                     </div>
                 </div>
@@ -272,18 +286,18 @@
         const detailModal = document.getElementById('detailRoomModal');
 
         function openDetailModal(ruangan) {
-            currentRuanganId = ruangan.id_ruangan;
+            currentRuanganId = ruangan.id;
             const deleteForm = document.getElementById('deleteForm');
             const editForm = document.getElementById('editForm');
-            deleteForm.action = `/ruangan/${ruangan.id_ruangan}`;
-            editForm.action = `/ruangan/${ruangan.id_ruangan}`;
+            deleteForm.action = `/ruangan/${ruangan.id}`;
+            editForm.action = `/ruangan/${ruangan.id}`;
 
             // Mengisi data ke dalam form modal detail
             document.getElementById('detail_nama_ruangan').value = ruangan.nama_ruangan;
             document.getElementById('detail_lokasi').value = ruangan.lokasi;
             document.getElementById('detail_kapasitas').value = ruangan.kapasitas;
             document.getElementById('detail_fasilitas').value = ruangan.fasilitas;
-            document.getElementById('edit_status').value = ruangan.status;
+            document.getElementById('edit_kondisi_ruangan').value = ruangan.kondisi_ruangan;
 
 
             // Menampilkan modal
