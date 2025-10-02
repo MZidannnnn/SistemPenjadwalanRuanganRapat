@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\RuanganController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PemesananController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/ruangan', [RuanganController::class, 'store'])->name('ruangan.store');
     Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
     Route::put('/ruangan/{ruangan}', [RuanganController::class, 'update'])->name('ruangan.update');
+
+    // Semua rute terkait pengelolaan pemesanan
+    Route::get('/pemesanan', [PemesananController::class, 'index'])->name('pemesanan.index');
+    Route::post('/pemesanan', [PemesananController::class, 'store'])->name('pemesanan.store');
+    Route::delete('/pemesanan/{pemesanan}', [PemesananController::class, 'destroy'])->name('pemesanan.destroy');
+    Route::put('/pemesanan/{pemesanan}', [PemesananController::class, 'update'])->name('pemesanan.update');
 
     // Semua rute terkait pengelolaan user
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
