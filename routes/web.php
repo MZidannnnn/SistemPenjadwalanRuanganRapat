@@ -41,6 +41,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/pemesanan', [PemesananController::class, 'store'])->name('pemesanan.store');
     Route::delete('/pemesanan/{pemesanan}', [PemesananController::class, 'destroy'])->name('pemesanan.destroy');
     Route::put('/pemesanan/{pemesanan}', [PemesananController::class, 'update'])->name('pemesanan.update');
+    Route::get('/pemesanan/by-date/{date}', [PemesananController::class, 'getByDate'])->name('pemesanan.byDate');
 
     // Semua rute terkait pengelolaan user
     Route::get('/user', [UserController::class, 'index'])->name('user.index');

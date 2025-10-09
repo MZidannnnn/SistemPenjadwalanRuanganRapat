@@ -14,6 +14,6 @@ class RuanganSeeder extends Seeder
     public function run(): void
     {
         //
-        Ruangan::factory()->count(50)->create();
+        // Ruangan::factory()->count(50)->create();
     }
 }

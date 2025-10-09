@@ -15,7 +15,7 @@ class RuanganController extends Controller
     public function index(Request $request)
     {
         // Memulai query dasar
-        $query = Ruangan::query();
+        $query = Ruangan::with('pemesanans');
 
         // Cek jika ada input pencarian
         if ($request->filled('search')) {
