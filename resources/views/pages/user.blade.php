@@ -16,18 +16,21 @@
         <div class="flex flex-col md:flex-row justify-between items-center mb-6 space-y-4 md:space-y-0">
 
             {{-- Kolom Pencarian --}}
-            <div class="relative w-full md:w-1/3">
-                <span class="absolute inset-y-0 left-0 flex items-center pl-4">
-                    <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                        fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4-4.816A6 6 0 012 8z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </span>
-                <input type="text" placeholder="Search"
-                    class="w-full pl-11 pr-4 py-2.5 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-            </div>
+            <form action="{{ route('user.index') }}" method="GET" class="w-full md:w-1/3">
+                <div class="relative">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-4">
+                        <svg class="h-5 w-5 text-gray-400" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.817-4.817A6 6 0 012 8z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </span>
+                    <input type="text" name="search" placeholder="Cari Berdasarkan nama atau username..."
+                        value="{{ request('search') }}"
+                        class="w-full pl-11 pr-4 py-2.5 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </form>
+
 
             {{-- Tombol Tambah user (diubah untuk memicu JavaScript) --}}
             <button onclick="openModal()"
@@ -79,6 +82,10 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+        <div class="mt-6">
+            {{-- withQueryString() penting agar filter pencarian tidak hilang saat pindah halaman --}}
+            {{ $users->withQueryString()->links() }}
         </div>
     </div>
 
@@ -330,7 +337,7 @@
         // Panggil fungsi ini untuk setiap modal
         setupPasswordToggle('add_passwordInput', 'add_togglePassword', 'add_eyeOpenContainer', 'add_eyeClosedContainer');
         setupPasswordToggle('edit_passwordInput', 'edit_togglePassword', 'edit_eyeOpenContainer',
-        'edit_eyeClosedContainer');
+            'edit_eyeClosedContainer');
 
 
 

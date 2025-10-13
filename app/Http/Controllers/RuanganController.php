@@ -19,25 +19,43 @@ class RuanganController extends Controller
 
         // Cek jika ada input pencarian
         if ($request->filled('search')) {
-            $search = $request->input('search');
-            
-            // Tambahkan kondisi pencarian ke query
-            // Mencari di beberapa kolom sekaligus
-            $query->where(function($q) use ($search) {
-                $q->where('nama_ruangan', 'like', "%{$search}%")
-                  ->orWhere('lokasi', 'like', "%{$search}%")
-                  ->orWhere('fasilitas', 'like', "%{$search}%")
-                  ->orWhere('kapasitas', 'like', "%{$search}%")
-                  ->orWhere('kondisi_ruangan', 'like', "%{$search}%");
-            });
+            $search = strtolower($request->input('search'));
+            if (str_contains('tersedia', $search)) {
+
+                $query->whereDoesntHave('pemesanans', function ($q) {
+                    $q->where('waktu_mulai', '<=', now())
+                        ->where('waktu_selesai', '>=', now())
+                        ->where('status', '!=', 'dibatalkan');
+                });
+
+                // JIKA PENCARIAN MENGANDUNG KATA 'DIPAKAI'
+            } elseif (str_contains('sedang dipakai', $search) || str_contains('dipakai', $search)) {
+
+                $query->whereHas('pemesanans', function ($q) {
+                    $q->where('waktu_mulai', '<=', now())
+                        ->where('waktu_selesai', '>=', now())
+                        ->where('status', '!=', 'dibatalkan');
+                });
+
+                // JIKA PENCARIAN TEKS BIASA
+            } else {
+
+                // Tambahkan kondisi pencarian ke query
+                // Mencari di beberapa kolom sekaligus
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_ruangan', 'like', "%{$search}%")
+                        ->orWhere('lokasi', 'like', "%{$search}%")
+                        ->orWhere('fasilitas', 'like', "%{$search}%")
+                        ->orWhere('kapasitas', 'like', "%{$search}%")
+                        ->orWhere('kondisi_ruangan', 'like', "%{$search}%");
+                });
+            }
         }
 
-        // Ambil data hasil query dan kirim ke view
-        // $ruangans = $query->latest()->get(); // latest() untuk mengurutkan dari yang terbaru
-        $ruangans = $query->latest()->paginate(5);
-        
-        return view('pages.ruangan', ['ruangans' => $ruangans]);
 
+        $ruangans = $query->latest()->paginate(5);
+
+        return view('pages.ruangan', ['ruangans' => $ruangans]);
     }
 
     /**

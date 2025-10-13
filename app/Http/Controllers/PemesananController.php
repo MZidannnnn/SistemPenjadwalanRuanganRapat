@@ -12,16 +12,58 @@ use Illuminate\Support\Facades\Auth;
 
 class PemesananController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+        // Jalankan update status 'selesai' secara just-in-time
         Pemesanan::where('status', 'dijadwalkan')
             ->where('waktu_selesai', '<', now())
             ->update(['status' => 'selesai']);
 
+        // Memulai query dasar dengan relasi yang dibutuhkan
+        $query = Pemesanan::with(['ruangan', 'user']);
+
+        // Cek jika ada input pencarian
+        if ($request->filled('search')) {
+            $search = strtolower($request->input('search'));
+
+            // --- LOGIKA PENCARIAN STATUS VIRTUAL ---
+            if (str_contains('dijadwalkan', $search)) {
+                $query->where('status', 'dijadwalkan')->where('waktu_mulai', '>', now());
+            } elseif (str_contains('berlangsung', $search)) {
+                $query->where('status', 'dijadwalkan')
+                    ->where('waktu_mulai', '<=', now())
+                    ->where('waktu_selesai', '>=', now());
+            } elseif (str_contains('selesai', $search)) {
+                $query->where('status', 'selesai');
+            } elseif (str_contains('dibatalkan', $search)) {
+                $query->where('status', 'dibatalkan');
+            }
+            // --- LOGIKA PENCARIAN TEKS BIASA ---
+            else {
+                $query->where(function ($q) use ($search) {
+                    $q->where('nama_kegiatan', 'like', "%{$search}%")
+                        ->orWhereHas('ruangan', function ($subQuery) use ($search) {
+                            $subQuery->where('nama_ruangan', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('ruangan', function ($subQuery) use ($search) {
+                            $subQuery->where('lokasi', 'like', "%{$search}%");
+                        })
+                        ->orWhereHas('user', function ($subQuery) use ($search) {
+                            $subQuery->where('name', 'like', "%{$search}%");
+                        });
+                });
+            }
+        }
+
+        // Ambil data ruangan untuk modal form
         $ruangans = Ruangan::where('kondisi_ruangan', 'aktif')->get();
-        $pemesanan = Pemesanan::with(['ruangan', 'user'])->get();
+
+        // Ambil hasil query pemesanan, urutkan, dan paginasi
+        $pemesanan = $query->latest('waktu_mulai')->paginate(5);
+
         return view('pages.pemesanan', compact('ruangans', 'pemesanan'));
     }
+
 
     public function store(StorePemesananRequest $request)
     {
@@ -114,7 +156,7 @@ class PemesananController extends Controller
         ];
         if (isset($validated['status']) && $validated['status'] === 'dibatalkan') {
             $updateData['status'] = 'dibatalkan';
-        } 
+        }
 
 
         $pemesanan->update($updateData);

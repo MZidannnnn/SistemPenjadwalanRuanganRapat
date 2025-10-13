@@ -16,14 +16,30 @@ class UserController extends Controller
     /**
      * Menampilkan halaman daftar semua ruangan.
      */
-    public function index()
+    public function index(Request $request)
     {
-        // Mengambil semua data dari tabel 'ruangan'
-        $users = User::all();
+        // Memulai query dasar
+        $query = User::query();
+
+        // Cek jika ada input pencarian dari form
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+
+            // Tambahkan kondisi pencarian ke query
+            // Mencari di kolom 'name' ATAU 'username'
+            $query->where('name', 'like', "%{$search}%")
+                ->orWhere('username', 'like', "%{$search}%")
+                ->orWhere('role', 'like', "%{$search}%")
+                ->orWhere('jabatan', 'like', "%{$search}%");
+        }
+
+        // Ambil data hasil query, urutkan dari yang terbaru, dan batasi 10 per halaman
+        $users = $query->latest()->paginate(5);
 
         // Mengirim data ke view
         return view('pages.user', ['users' => $users]);
     }
+
     public function store(Request $request)
     {
         // 1. Validasi data yang masuk dari form

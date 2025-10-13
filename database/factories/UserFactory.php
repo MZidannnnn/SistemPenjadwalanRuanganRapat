@@ -25,10 +25,14 @@ class UserFactory extends Factory
     {
         return [
             'name' => fake()->name(),
-            'email' => fake()->unique()->safeEmail(),
-            'email_verified_at' => now(),
+            'username' => fake()->unique()->userName(),
             'password' => static::$password ??= Hash::make('password'),
+            'jabatan' => fake()->jobTitle(),
+            // Secara acak memilih antara 'SKPD' atau 'pegawai'
+            // Sengaja tidak memasukkan 'admin' agar akun admin tidak dibuat secara acak
+            'role' => fake()->randomElement(['SKPD', 'pegawai']),
             'remember_token' => Str::random(10),
+
         ];
     }
 
@@ -37,7 +41,7 @@ class UserFactory extends Factory
      */
     public function unverified(): static
     {
-        return $this->state(fn (array $attributes) => [
+        return $this->state(fn(array $attributes) => [
             'email_verified_at' => null,
         ]);
     }

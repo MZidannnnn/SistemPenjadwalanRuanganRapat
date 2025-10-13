@@ -20,9 +20,10 @@ class DatabaseSeeder extends Seeder
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
+
         User::firstOrCreate(
             [
-                'username' => 'admin' 
+                'username' => 'admin'
             ],
             [
                 'name' => 'Administrator',
@@ -31,5 +32,12 @@ class DatabaseSeeder extends Seeder
                 'jabatan' => 'Super Administrator',
             ]
         );
+        $this->call([
+            // Pastikan UserSeeder dan RuanganSeeder sudah ada dan dipanggil
+            UserSeeder::class,
+            RuanganSeeder::class,
+
+            PemesananSeeder::class, // <-- TAMBAHKAN BARIS INI
+        ]);
     }
 }

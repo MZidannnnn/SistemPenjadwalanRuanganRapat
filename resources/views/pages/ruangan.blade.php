@@ -100,7 +100,8 @@
             </div>
         </div>
         <div class="mt-6">
-            {{ $ruangans->links() }}
+            {{-- {{ $ruangans->links() }} --}}
+             {{ $ruangans->withQueryString()->links() }}
         </div>
 
     </div>

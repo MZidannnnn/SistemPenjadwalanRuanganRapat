@@ -2,11 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\Ruangan;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 
-class RuanganSeeder extends Seeder
+class UserSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -14,6 +14,8 @@ class RuanganSeeder extends Seeder
     public function run(): void
     {
         //
-        Ruangan::factory()->count(50)->create();
+                // Membuat 20 user dengan role 'SKPD' atau 'pegawai' secara acak
+        User::factory(20)->create();
+
     }
 }

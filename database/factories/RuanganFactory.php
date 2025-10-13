@@ -22,7 +22,7 @@ class RuanganFactory extends Factory
             'kapasitas' => $this->faker->numberBetween(10, 50),
             'fasilitas' => 'AC, Proyektor, Papan Tulis',
             'lokasi' => 'Gedung ' . $this->faker->randomElement(['A', 'B', 'C']) . ' Lantai ' . $this->faker->numberBetween(1, 4),
-            'status' => $this->faker->randomElement(['tersedia', 'dalam perbaikan']),
+            'kondisi_ruangan' => $this->faker->randomElement(['AKtif', 'Dalam Perbaikan']),
 
         ];
     }
