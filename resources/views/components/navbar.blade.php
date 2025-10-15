@@ -37,15 +37,32 @@
                         <span class="absolute -bottom-4 h-0.5 w-full bg-white rounded-full"></span>
                     @endif
                 </a>
-                <a href="/user"
-                    class="relative flex flex-col items-center hover:text-gray-300 transition duration-150 text-xs px-2">
-                    <img src="{{ asset('images/icons8-user-24.png') }}" alt="User" class="h-6 w-6 mb-1">
-                    <span>User</span>
-                    {{-- Logika untuk menampilkan garis bawah --}}
-                    @if (request()->is('user*'))
-                        <span class="absolute -bottom-4 h-0.5 w-full bg-white rounded-full"></span>
+                {{-- LOGIKA BARU UNTUK MENU USER/PROFILE --}}
+                @auth
+                    @if (Auth::user()->role == 'admin')
+                        {{-- Menu ini hanya untuk Admin --}}
+                        <a href="{{ route('user.index') }}"
+                            class="relative flex flex-col items-center hover:text-gray-300 transition duration-150 text-xs px-2">
+                            <img src="{{ asset('images/icons8-user-24.png') }}" alt="User" class="h-6 w-6 mb-1">
+                            <span>User</span>
+                            {{-- Garis bawah aktif jika URL adalah user* --}}
+                            @if (request()->is('user*'))
+                                <span class="absolute -bottom-4 h-0.5 w-full bg-white rounded-full"></span>
+                            @endif
+                        </a>
+                    @else
+                        {{-- Menu ini untuk SKPD dan Pegawai --}}
+                        <a href="{{ route('profile.index') }}" {{-- Ganti '#' dengan route('profile.show') atau sejenisnya --}}
+                            class="relative flex flex-col items-center hover:text-gray-300 transition duration-150 text-xs px-2">
+                            <img src="{{ asset('images/icons8-user-24.png') }}" alt="Profile" class="h-6 w-6 mb-1">
+                            <span>Profile</span>
+                            {{-- Garis bawah aktif jika URL adalah profile* --}}
+                            @if (request()->is('profile*'))
+                                <span class="absolute -bottom-4 h-0.5 w-full bg-white rounded-full"></span>
+                            @endif
+                        </a>
                     @endif
-                </a>
+                @endauth
             </div>
 
             {{-- Tombol Keluar Kanan --}}

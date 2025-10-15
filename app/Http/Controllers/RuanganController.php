@@ -12,6 +12,8 @@ class RuanganController extends Controller
     /**
      * Menampilkan halaman daftar semua ruangan.
      */
+    // app/Http/Controllers/RuanganController.php
+
     public function index(Request $request)
     {
         // Memulai query dasar
@@ -19,39 +21,49 @@ class RuanganController extends Controller
 
         // Cek jika ada input pencarian
         if ($request->filled('search')) {
-            $search = strtolower($request->input('search'));
-            if (str_contains('tersedia', $search)) {
+            // Pecah input pencarian menjadi array kata kunci, contoh: "tersedia aktif" -> ['tersedia', 'aktif']
+            $keywords = explode(' ', strtolower($request->input('search')));
 
-                $query->whereDoesntHave('pemesanans', function ($q) {
-                    $q->where('waktu_mulai', '<=', now())
-                        ->where('waktu_selesai', '>=', now())
-                        ->where('status', '!=', 'dibatalkan');
-                });
+            // Siapkan array untuk menampung kata kunci pencarian teks biasa
+            $generalSearchTerms = [];
 
-                // JIKA PENCARIAN MENGANDUNG KATA 'DIPAKAI'
-            } elseif (str_contains('sedang dipakai', $search) || str_contains('dipakai', $search)) {
+            // Loop melalui setiap kata kunci
+            foreach ($keywords as $keyword) {
+                if (empty($keyword)) continue;
 
-                $query->whereHas('pemesanans', function ($q) {
-                    $q->where('waktu_mulai', '<=', now())
-                        ->where('waktu_selesai', '>=', now())
-                        ->where('status', '!=', 'dibatalkan');
-                });
+                // --- Terapkan filter khusus untuk status ---
+                if ($keyword === 'tersedia') {
+                    $query->whereDoesntHave('pemesanans', function ($q) {
+                        $q->where('waktu_mulai', '<=', now())
+                            ->where('waktu_selesai', '>=', now())
+                            ->where('status', '!=', 'dibatalkan');
+                    });
+                } elseif (in_array($keyword, ['dipakai', 'berlangsung'])) {
+                    $query->whereHas('pemesanans', function ($q) {
+                        $q->where('waktu_mulai', '<=', now())
+                            ->where('waktu_selesai', '>=', now())
+                            ->where('status', '!=', 'dibatalkan');
+                    });
+                } else {
+                    // Jika bukan kata kunci status, kumpulkan untuk pencarian teks biasa
+                    $generalSearchTerms[] = $keyword;
+                }
+            }
 
-                // JIKA PENCARIAN TEKS BIASA
-            } else {
+            // --- Jalankan pencarian teks biasa jika ada kata kunci yang tersisa ---
+            if (!empty($generalSearchTerms)) {
+                // Gabungkan kembali kata kunci teks biasa, contoh: ['command', 'center'] -> "command center"
+                $searchTerm = implode(' ', $generalSearchTerms);
 
-                // Tambahkan kondisi pencarian ke query
-                // Mencari di beberapa kolom sekaligus
-                $query->where(function ($q) use ($search) {
-                    $q->where('nama_ruangan', 'like', "%{$search}%")
-                        ->orWhere('lokasi', 'like', "%{$search}%")
-                        ->orWhere('fasilitas', 'like', "%{$search}%")
-                        ->orWhere('kapasitas', 'like', "%{$search}%")
-                        ->orWhere('kondisi_ruangan', 'like', "%{$search}%");
+                $query->where(function ($q) use ($searchTerm) {
+                    $q->where('nama_ruangan', 'like', "%{$searchTerm}%")
+                        ->orWhere('lokasi', 'like', "%{$searchTerm}%")
+                        ->orWhere('fasilitas', 'like', "%{$searchTerm}%")
+                        ->orWhere('kapasitas', 'like', "%{$searchTerm}%")
+                        ->orWhere('kondisi_ruangan', 'like', "%{$searchTerm}%");
                 });
             }
         }
-
 
         $ruangans = $query->latest()->paginate(5);
 

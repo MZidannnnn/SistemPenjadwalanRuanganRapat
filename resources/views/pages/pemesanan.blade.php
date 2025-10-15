@@ -191,15 +191,36 @@
                         <div class="space-y-4">
 
                             <div>
-                                <label for="edit_ruangan_id" class="block text-sm font-medium text-gray-700">Pilih
-                                    Ruangan</label>
-                                <select name="ruangan_id" id="edit_ruangan_id" required
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
-                                    @foreach ($ruangans as $ruangan)
-                                        <option value="{{ $ruangan->id }}">{{ $ruangan->nama_ruangan }}</option>
-                                    @endforeach
-                                </select>
+                                <label class="block text-sm font-medium text-gray-700">Pilih Ruangan</label>
+                                <div class="relative group mt-1">
+                                    <button type="button" id="dropdown-button-edit"
+                                        class="inline-flex justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                        <span id="selected-ruangan-edit" class="mr-2">-- Pilih Ruangan --</span>
+                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                            fill="currentColor">
+                                            <path fill-rule="evenodd"
+                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                                clip-rule="evenodd" />
+                                        </svg>
+                                    </button>
+                                    <div id="dropdown-menu-edit"
+                                        class="hidden absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-1 space-y-1">
+                                        <input id="search-input-edit"
+                                            class="block w-full px-4 py-2 text-gray-800 border rounded-md border-gray-300 focus:outline-none"
+                                            type="text" placeholder="Cari ruangan..." autocomplete="off">
+                                        <div id="ruangan-list-edit" class="max-h-56 overflow-y-auto">
+                                            @foreach ($ruangans as $ruangan)
+                                                <div data-id="{{ $ruangan->id }}"
+                                                    data-name="{{ $ruangan->nama_ruangan }}"
+                                                    class="ruangan-item block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md">
+                                                    {{ $ruangan->nama_ruangan }}</div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="ruangan_id" id="ruangan_id_hidden_edit">
                             </div>
+
 
                             <div>
                                 <label for="edit_nama_kegiatan" class="block text-sm font-medium text-gray-700">Nama
@@ -321,17 +342,33 @@
 
                     <div class="space-y-4">
                         <div>
-                            <label for="ruangan_id" class="block text-sm font-medium text-gray-700">Pilih Ruangan</label>
-                            <select name="ruangan_id" id="ruangan_id"
-                                class="mt-1 block w-full py-2 px-3 border rounded-md shadow-sm @error('ruangan_id') border-red-500 @enderror">
-                                <option value="">-- Pilih Ruangan --</option>
-                                @foreach ($ruangans as $ruangan)
-                                    <option value="{{ $ruangan->id }}"
-                                        {{ old('ruangan_id') == $ruangan->id ? 'selected' : '' }}>
-                                        {{ $ruangan->nama_ruangan }}
-                                    </option>
-                                @endforeach
-                            </select>
+                            <label class="block text-sm font-medium text-gray-700">Pilih Ruangan</label>
+                            <div class="relative group mt-1">
+                                <button type="button" id="dropdown-button-create"
+                                    class="inline-flex justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <span id="selected-ruangan-create" class="mr-2">-- Pilih Ruangan --</span>
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M10 5.293l-4.707 4.707a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0l5 5a1 1 0 11-1.414 1.414L10 5.293z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <div id="dropdown-menu-create"
+                                    class="hidden absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-1 space-y-1">
+                                    <input id="search-input-create"
+                                        class="block w-full px-4 py-2 text-gray-800 border rounded-md border-gray-300 focus:outline-none"
+                                        type="text" placeholder="Cari ruangan..." autocomplete="off">
+                                    <div id="ruangan-list-create" class="max-h-56 overflow-y-auto">
+                                        @foreach ($ruangans as $ruangan)
+                                            <div data-id="{{ $ruangan->id }}" data-name="{{ $ruangan->nama_ruangan }}"
+                                                class="ruangan-item block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md">
+                                                {{ $ruangan->nama_ruangan }}</div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                            <input type="hidden" name="ruangan_id" id="ruangan_id_hidden_create">
                             @error('ruangan_id')
                                 <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                             @enderror
@@ -409,6 +446,9 @@
 
         document.addEventListener("DOMContentLoaded", function() {
 
+            setupDropdown('create');
+            setupDropdown('edit');
+
             // KONDISI 1: JIKA ADA ERROR SAAT MEMBUAT PESANAN BARU
             @if ($errors->create->any())
                 // Buka modal untuk 'tambah pesanan'
@@ -430,6 +470,52 @@
                 }
             @endif
         });
+
+        function setupDropdown(type) {
+            const dropdownButton = document.getElementById(`dropdown-button-${type}`);
+            const dropdownMenu = document.getElementById(`dropdown-menu-${type}`);
+            const searchInput = document.getElementById(`search-input-${type}`);
+            const ruanganList = document.getElementById(`ruangan-list-${type}`);
+            const selectedRuanganText = document.getElementById(`selected-ruangan-${type}`);
+            const hiddenInput = document.getElementById(`ruangan_id_hidden_${type}`);
+
+            if (!dropdownButton) return;
+
+            const ruanganItems = ruanganList.querySelectorAll('.ruangan-item');
+
+            dropdownButton.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('hidden');
+            });
+
+            dropdownMenu.addEventListener('click', (e) => {
+                e.stopPropagation();
+            });
+
+            searchInput.addEventListener('input', () => {
+                const searchTerm = searchInput.value.toLowerCase();
+                ruanganItems.forEach(item => {
+                    const text = item.textContent.toLowerCase();
+                    item.style.display = text.includes(searchTerm) ? 'block' : 'none';
+                });
+            });
+
+            ruanganItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    selectedRuanganText.textContent = item.getAttribute('data-name');
+                    hiddenInput.value = item.getAttribute('data-id');
+                    dropdownMenu.classList.add('hidden');
+                });
+            });
+        }
+
+        document.addEventListener('click', () => {
+            const menuCreate = document.getElementById('dropdown-menu-create');
+            const menuEdit = document.getElementById('dropdown-menu-edit');
+            if (menuCreate) menuCreate.classList.add('hidden');
+            if (menuEdit) menuEdit.classList.add('hidden');
+        });
+
 
 
         const monthNames = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September',
@@ -564,6 +650,7 @@
 
             // 2. Atur action untuk form edit
             currentPemesananId = pemesanan.id;
+            document.getElementById('editForm').action = `/pemesanan/${pemesanan.id}`;
             const deleteForm = document.getElementById('deleteForm');
             deleteForm.action = `/pemesanan/${pemesanan.id}`;
             const editForm = document.getElementById('editForm');
@@ -577,8 +664,11 @@
             // 4. Pecah 'waktu_selesai' untuk mendapatkan waktunya saja
             const waktuSelesai = new Date(pemesanan.waktu_selesai).toTimeString().substring(0, 5); // Hasil: "HH:MM"
 
+            document.getElementById('selected-ruangan-edit').textContent = pemesanan.ruangan.nama_ruangan;
+            document.getElementById('ruangan_id_hidden_edit').value = pemesanan.ruangan_id;
+
             // 5. Isi semua field di dalam form modal
-            document.getElementById('edit_ruangan_id').value = pemesanan.ruangan_id;
+           
             document.getElementById('edit_nama_kegiatan').value = pemesanan.nama_kegiatan;
             document.getElementById('edit_tanggal').value = tanggal;
             document.getElementById('edit_waktu_mulai').value = waktuMulai;
