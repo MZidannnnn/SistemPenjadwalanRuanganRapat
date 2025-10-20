@@ -101,7 +101,7 @@
                                     clip-rule="evenodd"></path>
                             </svg>
                         </span>
-                        <input type="text" id="searchInput" placeholder="Cari jadwal..." name="search"
+                        <input type="text" id="searchInput" placeholder="Cari jadwal..." name="search" value="{{ request('search') }}"
                             class="w-full pl-10 pr-4 py-2 border bg-white border-gray-200 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                 </form>

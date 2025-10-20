@@ -25,279 +25,316 @@
             }
 
             .today-date {
-                background-color: #EF4444;
+                background-color: #7e5c5c;
                 color: white;
                 border-radius: 8px;
                 font-weight: bold;
             }
+
+            .has-event {
+                position: relative;
+            }
+
+            .has-event::after {
+                content: '';
+                position: absolute;
+                bottom: 6px;
+                /* Sesuaikan posisi vertikal titik */
+                left: 50%;
+                transform: translateX(-50%);
+                width: 5px;
+                height: 5px;
+                background-color: #ff0000;
+                /* Warna biru */
+                border-radius: 50%;
+            }
         </style>
     @endpush
+    <div id="main-content">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">Pengelola Pemesanan</h1>
 
-    <h1 class="text-3xl font-bold text-gray-800 mb-6">Pengelola Pemesanan</h1>
+        {{-- Calendar Container --}}
+        <div class="flex justify-center">
+            <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
 
-    {{-- Calendar Container --}}
-    <div class="flex justify-center">
-        <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-2xl">
+                {{-- Calendar Header --}}
+                <div class="flex items-center justify-between mb-6">
+                    <button onclick="previousMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
+                            </path>
+                        </svg>
+                    </button>
 
-            {{-- Calendar Header --}}
-            <div class="flex items-center justify-between mb-6">
-                <button onclick="previousMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-                    </svg>
-                </button>
+                    <h2 id="currentMonthYear" class="text-lg font-semibold text-gray-800">Januari 2023</h2>
 
-                <h2 id="currentMonthYear" class="text-lg font-semibold text-gray-800">Januari 2023</h2>
+                    <button onclick="nextMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                </div>
 
-                <button onclick="nextMonth()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                    </svg>
-                </button>
+                {{-- Days of Week Header --}}
+                <div class="grid grid-cols-7 gap-1 mb-2">
+                    @foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $hari)
+                        <div class="text-center text-gray-400 text-sm py-2">{{ $hari }}</div>
+                    @endforeach
+                </div>
+
+                {{-- Calendar Grid --}}
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+            </div>
+        </div>
+
+        {{-- Daftar Pemesanan --}}
+        <div class="mt-12">
+            <h2 class="text-xl font-bold text-gray-800">Daftar Pemesanan</h2>
+
+            {{-- Kolom Pencarian --}}
+            <form action="{{ route('pemesanan.index') }}" method="GET" class="mt-6 mb-4">
+
+                <div class="mt-6 mb-4">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                fill="currentColor">
+                                <path fill-rule="evenodd"
+                                    d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                        </span>
+                        <input type="text" placeholder="Cari jadwal..." name="search" value="{{ request('search') }}"
+                            class="w-full md:w-1/3 pl-10 pr-4 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </form>
+
+            {{-- Tabel Pemesanan (Style Baru) --}}
+            <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+
+                        {{-- DIUBAH: Menggunakan style header dari tabel ruangan --}}
+                        <thead class="bg-white border-b-2 border-gray-200">
+                            <tr>
+                                <th
+                                    class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                    Nama Kegiatan</th>
+                                <th
+                                    class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                    Ruangan</th>
+                                <th
+                                    class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                    Lokasi</th>
+                                <th
+                                    class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                    Waktu Mulai</th>
+                                <th
+                                    class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                    Waktu Selesai</th>
+                                <th
+                                    class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
+                                    Status</th>
+                            </tr>
+                        </thead>
+
+                        {{-- DIUBAH: Menggunakan style body dari tabel ruangan --}}
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse ($pemesanan as $p)
+                                {{-- DIUBAH: Menambahkan atribut data-* dan onclick --}}
+                                <tr class="hover:bg-gray-50 cursor-pointer" data-pemesanan='{{ json_encode($p) }}'
+                                    onclick="openPemesananDetail(this)">
+                                    <td class="py-4 px-6 text-sm text-gray-600">{{ $p->nama_kegiatan }}</td>
+                                    <td class="py-4 px-6 text-sm font-medium text-gray-800">{{ $p->ruangan->nama_ruangan }}
+                                    </td>
+                                    <td class="py-4 px-6 text-sm text-gray-600">{{ $p->ruangan->lokasi }}</td>
+                                    <td class="py-4 px-6 text-sm font-medium text-gray-800">
+                                        {{ \Carbon\Carbon::parse($p->waktu_mulai)->format('d M Y, H:i') }}</td>
+                                    <td class="py-4 px-6 text-sm text-gray-600">
+                                        {{ \Carbon\Carbon::parse($p->waktu_selesai)->format('d M Y, H:i') }}</td>
+                                    <td class="py-4 px-6 text-sm">
+                                        @php
+                                            $statusColors = [
+                                                'Dijadwalkan' => 'bg-yellow-100 text-yellow-800',
+                                                'Berlangsung' => 'bg-blue-100 text-blue-800',
+                                                'Selesai' => 'bg-green-100 text-green-800',
+                                                'Dibatalkan' => 'bg-red-100 text-red-800',
+                                            ];
+                                        @endphp
+                                        <span
+                                            class="{{ $statusColors[$p->status] ?? 'bg-gray-100 text-gray-800' }} px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
+                                            {{ $p->status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="py-8 px-6 text-center text-gray-500">
+                                        Belum ada data pemesanan.
+                                    </td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+            <div class="mt-6">
+                {{-- withQueryString() penting agar filter pencarian tidak hilang saat pindah halaman --}}
+                {{ $pemesanan->withQueryString()->links() }}
             </div>
 
-            {{-- Days of Week Header --}}
-            <div class="grid grid-cols-7 gap-1 mb-2">
-                @foreach (['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'] as $hari)
-                    <div class="text-center text-gray-400 text-sm py-2">{{ $hari }}</div>
-                @endforeach
-            </div>
 
-            {{-- Calendar Grid --}}
-            <div id="calendarGrid" class="grid grid-cols-7 gap-1"></div>
+
         </div>
     </div>
 
-    {{-- Daftar Pemesanan --}}
-    <div class="mt-12">
-        <h2 class="text-xl font-bold text-gray-800">Daftar Pemesanan</h2>
-
-        {{-- Kolom Pencarian --}}
-        <form action="{{ route('pemesanan.index') }}" method="GET" class="mt-6 mb-4">
-
-            <div class="mt-6 mb-4">
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 flex items-center pl-3">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                            fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                                clip-rule="evenodd" />
+    {{-- MODAL UNTUK MENAMPILKAN DETAIL Tabel PEMESANAN --}}
+    {{-- GANTI SELURUH MODAL DETAIL ANDA DENGAN INI --}}
+    <div id="pemesananDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="toggleModal('pemesananDetailModal', false)">
+        <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full" onclick="event.stopPropagation()">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold text-gray-800">Detail Pemesanan</h3>
+                    <button onclick="toggleModal('pemesananDetailModal', false)" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                         </svg>
-                    </span>
-                    <input type="text" placeholder="Cari jadwal..." name="search"
-                        class="w-full md:w-1/3 pl-10 pr-4 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </button>
+
                 </div>
-            </div>
-        </form>
 
-        {{-- Tabel Pemesanan (Style Baru) --}}
-        <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="min-w-full">
-
-                    {{-- DIUBAH: Menggunakan style header dari tabel ruangan --}}
-                    <thead class="bg-white border-b-2 border-gray-200">
-                        <tr>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Ruangan</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Lokasi</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Waktu Mulai</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Waktu Selesai</th>
-                            <th class="py-4 px-6 text-left text-sm font-semibold text-gray-600 uppercase tracking-wider">
-                                Status</th>
-                        </tr>
-                    </thead>
-
-                    {{-- DIUBAH: Menggunakan style body dari tabel ruangan --}}
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse ($pemesanan as $p)
-                            {{-- DIUBAH: Menambahkan atribut data-* dan onclick --}}
-                            <tr class="hover:bg-gray-50 cursor-pointer" data-pemesanan='{{ json_encode($p) }}'
-                                onclick="openPemesananDetail(this)">
-
-                                <td class="py-4 px-6 text-sm font-medium text-gray-800">{{ $p->ruangan->nama_ruangan }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">{{ $p->ruangan->lokasi }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">
-                                    {{ \Carbon\Carbon::parse($p->waktu_mulai)->format('d M Y, H:i') }}</td>
-                                <td class="py-4 px-6 text-sm text-gray-600">
-                                    {{ \Carbon\Carbon::parse($p->waktu_selesai)->format('d M Y, H:i') }}</td>
-                                <td class="py-4 px-6 text-sm">
-                                    @php
-                                        $statusColors = [
-                                            'Dijadwalkan' => 'bg-yellow-100 text-yellow-800',
-                                            'Berlangsung' => 'bg-blue-100 text-blue-800',
-                                            'Selesai' => 'bg-green-100 text-green-800',
-                                            'Dibatalkan' => 'bg-red-100 text-red-800',
-                                        ];
-                                    @endphp
-                                    <span
-                                        class="{{ $statusColors[$p->status] ?? 'bg-gray-100 text-gray-800' }} px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full">
-                                        {{ $p->status }}
-                                    </span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="5" class="py-8 px-6 text-center text-gray-500">
-                                    Belum ada data pemesanan.
-                                </td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-
-                </table>
-            </div>
-        </div>
-        <div class="mt-6">
-            {{-- withQueryString() penting agar filter pencarian tidak hilang saat pindah halaman --}}
-            {{ $pemesanan->withQueryString()->links() }}
-        </div>
-
-
-        {{-- MODAL UNTUK MENAMPILKAN DETAIL Tabel PEMESANAN --}}
-        {{-- GANTI SELURUH MODAL DETAIL ANDA DENGAN INI --}}
-        <div id="pemesananDetailModal"
-            class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-            <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-xl font-bold text-gray-800">Detail Pemesanan</h3>
-                        <button onclick="toggleModal('pemesananDetailModal', false)"
-                            class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+                @if ($errors->update->any())
+                    <div class="mb-4 p-3 rounded-md bg-red-100 border border-red-300 text-red-700 text-sm">
+                        <ul class="list-disc list-inside space-y-1">
+                            @foreach ($errors->update->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
                     </div>
-
-                    @if ($errors->update->any())
-                        <div class="mb-4 p-3 rounded-md bg-red-100 border border-red-300 text-red-700 text-sm">
-                            <ul class="list-disc list-inside space-y-1">
-                                @foreach ($errors->update->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
+                @endif
 
 
-                    {{-- FORM EDIT PEMESANAN --}}
-                    <form id="editForm" action="" method="POST">
-                        @csrf
-                        @method('PUT')
+                {{-- FORM EDIT PEMESANAN --}}
+                <form id="editForm" action="" method="POST">
+                    @csrf
+                    @method('PUT')
 
 
 
-                        <div class="space-y-4">
+                    <div class="space-y-4">
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700">Pilih Ruangan</label>
-                                <div class="relative group mt-1">
-                                    <button type="button" id="dropdown-button-edit"
-                                        class="inline-flex justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                        <span id="selected-ruangan-edit" class="mr-2">-- Pilih Ruangan --</span>
-                                        <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
-                                            fill="currentColor">
-                                            <path fill-rule="evenodd"
-                                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                                clip-rule="evenodd" />
-                                        </svg>
-                                    </button>
-                                    <div id="dropdown-menu-edit"
-                                        class="hidden absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-1 space-y-1">
-                                        <input id="search-input-edit"
-                                            class="block w-full px-4 py-2 text-gray-800 border rounded-md border-gray-300 focus:outline-none"
-                                            type="text" placeholder="Cari ruangan..." autocomplete="off">
-                                        <div id="ruangan-list-edit" class="max-h-56 overflow-y-auto">
-                                            @foreach ($ruangans as $ruangan)
-                                                <div data-id="{{ $ruangan->id }}"
-                                                    data-name="{{ $ruangan->nama_ruangan }}"
-                                                    class="ruangan-item block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md">
-                                                    {{ $ruangan->nama_ruangan }}</div>
-                                            @endforeach
-                                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Pilih Ruangan</label>
+                            <div class="relative group mt-1">
+                                <button type="button" id="dropdown-button-edit"
+                                    class="inline-flex justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <span id="selected-ruangan-edit" class="mr-2">-- Pilih Ruangan --</span>
+                                    <svg class="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
+                                        fill="currentColor">
+                                        <path fill-rule="evenodd"
+                                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </button>
+                                <div id="dropdown-menu-edit"
+                                    class="hidden absolute z-10 mt-2 w-full rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 p-1 space-y-1">
+                                    <input id="search-input-edit"
+                                        class="block w-full px-4 py-2 text-gray-800 border rounded-md border-gray-300 focus:outline-none"
+                                        type="text" placeholder="Cari ruangan..." autocomplete="off">
+                                    <div id="ruangan-list-edit" class="max-h-56 overflow-y-auto">
+                                        @foreach ($ruangans as $ruangan)
+                                            <div data-id="{{ $ruangan->id }}" data-name="{{ $ruangan->nama_ruangan }}"
+                                                class="ruangan-item block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md">
+                                                {{ $ruangan->nama_ruangan }}</div>
+                                        @endforeach
                                     </div>
                                 </div>
-                                <input type="hidden" name="ruangan_id" id="ruangan_id_hidden_edit">
                             </div>
-
-
-                            <div>
-                                <label for="edit_nama_kegiatan" class="block text-sm font-medium text-gray-700">Nama
-                                    Kegiatan</label>
-                                <input type="text" name="nama_kegiatan" id="edit_nama_kegiatan" required
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
-                            </div>
-
-                            <div>
-                                <label for="edit_tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
-                                <input type="date" name="tanggal" id="edit_tanggal" required
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
-                            </div>
-
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label for="edit_waktu_mulai" class="block text-sm font-medium text-gray-700">Waktu
-                                        Mulai</label>
-                                    <input type="time" name="waktu_mulai" id="edit_waktu_mulai" required
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
-                                </div>
-                                <div>
-                                    <label for="edit_waktu_selesai" class="block text-sm font-medium text-gray-700">Waktu
-                                        Selesai</label>
-                                    <input type="time" name="waktu_selesai" id="edit_waktu_selesai" required
-                                        class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
-                                </div>
-                            </div>
-                            <div>
-                                <label for="edit_status" class="block text-sm font-medium text-gray-700">Status</label>
-                                <select name="status" id="edit_status" required
-                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
-                                    <option value="dijadwalkan">Dijadwalkan</option>
-                                    <option value="selesai">Selesai</option>
-                                    <option value="dibatalkan">Dibatalkan</option>
-                                </select>
-                            </div>
-
+                            <input type="hidden" name="ruangan_id" id="ruangan_id_hidden_edit">
                         </div>
-                        {{-- Perbaikan untuk tombol Edit dan Hapus --}}
-                        <div class="mt-8 flex justify-end items-center space-x-3">
 
-                            {{-- Tombol Edit --}}
-                            <button type="button" onclick="openConfirmEditModal()"
-                                class="inline-flex items-center justify-center bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
-                                    </path>
-                                </svg>
-                                Edit
-                            </button>
 
-                            <button type="button" onclick="openConfirmDeleteModal('/pemesanan/' + currentPemesananId)"
-                                class="inline-flex items-center justify-center bg-red-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
-                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                    </path>
-                                </svg>
-                                Hapus
-                            </button>
+                        <div>
+                            <label for="edit_nama_kegiatan" class="block text-sm font-medium text-gray-700">Nama
+                                Kegiatan</label>
+                            <input type="text" name="nama_kegiatan" id="edit_nama_kegiatan" required
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
                         </div>
-                    </form>
-                </div>
+
+                        <div>
+                            <label for="edit_tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
+                            <input type="date" name="tanggal" id="edit_tanggal" required
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="edit_waktu_mulai" class="block text-sm font-medium text-gray-700">Waktu
+                                    Mulai</label>
+                                <input type="time" name="waktu_mulai" id="edit_waktu_mulai" required
+                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
+                            </div>
+                            <div>
+                                <label for="edit_waktu_selesai" class="block text-sm font-medium text-gray-700">Waktu
+                                    Selesai</label>
+                                <input type="time" name="waktu_selesai" id="edit_waktu_selesai" required
+                                    class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="edit_status" class="block text-sm font-medium text-gray-700">Status</label>
+                            <select name="status" id="edit_status" required
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md">
+                                <option value="dijadwalkan">Dijadwalkan</option>
+                                <option value="selesai">Selesai</option>
+                                <option value="dibatalkan">Dibatalkan</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    {{-- Perbaikan untuk tombol Edit dan Hapus --}}
+                    <div class="mt-8 flex justify-end items-center space-x-3">
+
+                        {{-- Tombol Edit --}}
+                        <button type="button" onclick="openConfirmEditModal()"
+                            class="inline-flex items-center justify-center bg-blue-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-blue-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                                </path>
+                            </svg>
+                            Edit
+                        </button>
+
+                        <button type="button" onclick="openConfirmDeleteModal('/pemesanan/' + currentPemesananId)"
+                            class="inline-flex items-center justify-center bg-red-600 text-white font-semibold px-6 py-2 rounded-lg hover:bg-red-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                                </path>
+                            </svg>
+                            Hapus
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-
     </div>
 
     {{-- Modal: Detail Rapat & Form Pemesanan --}}
-    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-xl shadow-2xl p-6 m-4 max-w-lg w-full">
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" onclick="toggleModal('detailModal', false)">
+        <div class="bg-white rounded-xl shadow-2xl p-6 m-4 max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-gray-800">Detail Rapat</h3>
-                <button onclick="toggleModal('detailModal', false)"
-                    class="text-gray-400 hover:text-gray-600">&times;</button>
+                <button onclick="toggleModal('detailModal', false)" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                        stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
             <div id="meetingContent" class="space-y-4 max-h-72 overflow-y-auto pr-2"></div>
             <div class="mt-6 border-t pt-4 flex flex-col gap-3">
@@ -317,13 +354,18 @@
         </div>
     </div>
 
-    <div id="formPemesananModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full">
+    <div id="formPemesananModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="toggleModal('formPemesananModal', false)">
+        <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-gray-800">Pesan Ruang Rapat</h3>
-                    <button onclick="toggleModal('formPemesananModal', false)"
-                        class="text-gray-400 hover:text-gray-600">&times;</button>
+                    <button onclick="toggleModal('formPemesananModal', false)" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                            stroke-width="1.5" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+
                 </div>
 
                 @if ($errors->create->any())
@@ -439,10 +481,14 @@
 @push('scripts')
     <script>
         const today = new Date();
+        const mainContent = document.getElementById('main-content');
+        const navbar = document.getElementById('navbar');
         let currentMonth = today.getMonth();
         let currentYear = today.getFullYear();
         let selectedDate = today.getDate();
         let currentPemesananId = null;
+
+
 
         document.addEventListener("DOMContentLoaded", function() {
 
@@ -550,16 +596,30 @@
 
         function toggleModal(id, show = true) {
             const modal = document.getElementById(id);
+
+            if (!modal || !mainContent || !navbar) {
+                console.error("Satu atau lebih elemen (modal, mainContent, navbar) tidak ditemukan.");
+                return; // Hentikan fungsi jika ada elemen yang hilang
+            }
+
             if (show) {
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
+                mainContent.classList.add('blur-sm');
+                navbar.classList.add('blur-sm');
             } else {
                 modal.classList.add('hidden');
                 modal.classList.remove('flex');
+                mainContent.classList.remove('blur-sm');
+                navbar.classList.remove('blur-sm');
             }
         }
 
-        function renderCalendar() {
+        async function renderCalendar() {
+            // document.getElementById('calendarGrid').innerHTML =
+            //     '<div class="text-center text-gray-500 p-4">Memuat jadwal...</div>';
+
+
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
@@ -567,6 +627,20 @@
 
             document.getElementById('currentMonthYear').textContent =
                 `${monthNames[currentMonth]} ${currentYear}`;
+
+            let scheduledDates = [];
+            try {
+                // currentMonth adalah 0-indexed (0=Jan), jadi kita tambah 1 untuk URL
+                const response = await fetch(`/pemesanan/scheduled-dates/${currentYear}/${currentMonth + 1}`);
+                if (response.ok) {
+                    scheduledDates = await response.json();
+                } else {
+                    console.error('Gagal mengambil data jadwal.');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
 
             let calendarHTML = '';
             for (let i = adjustedFirstDay - 1; i >= 0; i--) {
@@ -578,9 +652,17 @@
                     .getDate();
                 const isSelected = d === selectedDate;
 
-                let dayClasses = 'calendar-day cursor-pointer hover:bg-gray-100 rounded-lg transition-all';
+                const hasEvent = scheduledDates.includes(dateStr);
+
+                let dayClasses =
+                    'calendar-day cursor-pointer hover:bg-[#5B8DEF] hover:text-black rounded-lg transition-all';
                 if (isToday && !isSelected) dayClasses += ' today-date';
                 else if (isSelected) dayClasses += ' selected-date';
+
+                if (hasEvent) {
+                    dayClasses += ' has-event';
+                }
+
 
                 calendarHTML +=
                     `<div onclick="selectDate(${d},${currentMonth},${currentYear})" class="${dayClasses}">${d}</div>`;
@@ -643,7 +725,7 @@
             setTimeout(() => toggleModal('formPemesananModal', true), 150);
         }
 
-        // GANTI FUNGSI LAMA ANDA DENGAN INI
+        
         function openPemesananDetail(element) {
             // 1. Ambil dan parse data dari atribut data-pemesanan
             const pemesanan = JSON.parse(element.getAttribute('data-pemesanan'));
@@ -668,7 +750,7 @@
             document.getElementById('ruangan_id_hidden_edit').value = pemesanan.ruangan_id;
 
             // 5. Isi semua field di dalam form modal
-           
+
             document.getElementById('edit_nama_kegiatan').value = pemesanan.nama_kegiatan;
             document.getElementById('edit_tanggal').value = tanggal;
             document.getElementById('edit_waktu_mulai').value = waktuMulai;

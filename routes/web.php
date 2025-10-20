@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
     Route::delete('/pemesanan/{pemesanan}', [PemesananController::class, 'destroy'])->name('pemesanan.destroy');
     Route::put('/pemesanan/{pemesanan}', [PemesananController::class, 'update'])->name('pemesanan.update');
     Route::get('/pemesanan/by-date/{date}', [PemesananController::class, 'getByDate'])->name('pemesanan.byDate');
+    Route::get('/pemesanan/scheduled-dates/{year}/{month}', [PemesananController::class, 'getScheduledDatesInMonth'])->name('pemesanan.scheduledDates');
 
     // Semua rute terkait pengelolaan user
     Route::get('/user', [UserController::class, 'index'])->name('user.index');
