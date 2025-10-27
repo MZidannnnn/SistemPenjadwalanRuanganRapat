@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Http\Requests\UpdatePemesananRequest;
 use App\Http\Requests\StorePemesananRequest;
 use App\Models\Pemesanan;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\Ruangan;
 use Illuminate\Support\Facades\Auth;
@@ -21,6 +20,8 @@ class PemesananController extends Controller
 
         // Memulai query dasar dengan relasi yang dibutuhkan
         $query = Pemesanan::with(['ruangan', 'user']);
+
+        $query->where('user_id', Auth::id());
 
         // Cek jika ada input pencarian
         if ($request->filled('search')) {

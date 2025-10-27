@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Ruangan;
 use App\Models\Pemesanan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
@@ -26,10 +27,20 @@ class DashboardController extends Controller
             ->where('status', '!=', 'dibatalkan')
             ->count();
 
-        $totalPemesanan = Pemesanan::where('status', '!=', 'dibatalkan')->count();
+        $user = Auth::user();
+        $totalPemesanan = 0;
 
+        if ($user->role === 'admin') {
+            // Admin: hitung semua pemesanan (yang tidak dibatalkan)
+            $totalPemesanan = Pemesanan::where('status', '!=', 'dibatalkan')->count();
+        } elseif (in_array($user->role, ['pegawai', 'SKPD'])) {
+            // Pegawai/SKPD: hitung hanya pemesanan milik sendiri (yang tidak dibatalkan)
+            $totalPemesanan = Pemesanan::where('user_id', $user->id)
+                                        ->where('status', '!=', 'dibatalkan')
+                                        ->count();
+        }
 
-        // --- DATA UNTUK TABEL "JADWAL RUANGAN HARI INI" ---
+        // $totalPemesanan = Pemesanan::where('status', '!=', 'dibatalkan')->count();
 
         // Memulai query dasar untuk jadwal hari ini
         $query = Pemesanan::whereDate('waktu_mulai', today())
@@ -71,8 +82,11 @@ class DashboardController extends Controller
         // Jalankan query, urutkan, dan paginasi
         $jadwalHariIni = $query->orderBy('waktu_mulai', 'asc')->paginate(5);
 
+        $ruangans = Ruangan::where('kondisi_ruangan', 'aktif')->get();
+
         // --- KIRIM SEMUA DATA KE VIEW ---
         return view('pages.dashboard', [
+            'ruangans'              => $ruangans,
             'jumlahRuanganTersedia' => $jumlahRuanganTersedia,
             'peminjamanHariIni'     => $peminjamanHariIni,
             'totalPemesanan'        => $totalPemesanan,

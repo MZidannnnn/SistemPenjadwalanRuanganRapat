@@ -150,9 +150,9 @@
                                     </td>
                                     <td class="py-4 px-6 text-sm text-gray-600">{{ $p->ruangan->lokasi }}</td>
                                     <td class="py-4 px-6 text-sm font-medium text-gray-800">
-                                        {{ \Carbon\Carbon::parse($p->waktu_mulai)->format('d M Y, H:i') }}</td>
+                                        {{ \Carbon\Carbon::parse($p->waktu_mulai)->locale('id')->translatedFormat('d F Y, H:i') }}
                                     <td class="py-4 px-6 text-sm text-gray-600">
-                                        {{ \Carbon\Carbon::parse($p->waktu_selesai)->format('d M Y, H:i') }}</td>
+                                        {{ \Carbon\Carbon::parse($p->waktu_selesai)->locale('id')->translatedFormat('d F Y, H:i') }}
                                     <td class="py-4 px-6 text-sm">
                                         @php
                                             $statusColors = [
@@ -192,7 +192,8 @@
 
     {{-- MODAL UNTUK MENAMPILKAN DETAIL Tabel PEMESANAN --}}
     {{-- GANTI SELURUH MODAL DETAIL ANDA DENGAN INI --}}
-    <div id="pemesananDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="toggleModal('pemesananDetailModal', false)">
+    <div id="pemesananDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+        onclick="toggleModal('pemesananDetailModal', false)">
         <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
@@ -325,7 +326,8 @@
     </div>
 
     {{-- Modal: Detail Rapat & Form Pemesanan --}}
-    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" onclick="toggleModal('detailModal', false)">
+    <div id="detailModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50"
+        onclick="toggleModal('detailModal', false)">
         <div class="bg-white rounded-xl shadow-2xl p-6 m-4 max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-gray-800">Detail Rapat</h3>
@@ -354,7 +356,8 @@
         </div>
     </div>
 
-    <div id="formPemesananModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4" onclick="toggleModal('formPemesananModal', false)">
+    <div id="formPemesananModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+        onclick="toggleModal('formPemesananModal', false)">
         <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
@@ -692,21 +695,48 @@
                 const data = await res.json();
 
                 if (data.length > 0) {
-                    let html = `<div class="text-sm text-gray-600 mb-3">
-                        <span class="font-semibold">Tanggal: ${selectedDate} ${monthNames[currentMonth]} ${currentYear}</span>
+
+                    const hari = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+                    const tanggalLengkap = new Date(currentYear, currentMonth, selectedDate);
+                    const namaHari = hari[tanggalLengkap.getDay()];
+
+                    let html = `<div id="modalDateHeader" class="sticky top-0 bg-white pb-3 mb-3 border-b">
+                        <span class="font-semibold text-gray-800">${namaHari}, ${selectedDate} ${monthNames[currentMonth]} ${currentYear}</span>
                     </div>`;
+
+                    let meetingHtml = '';
                     data.forEach((m, i) => {
-                        html += `<div class="border-l-4 border-blue-500 pl-4 py-3 ${i>0?'mt-4':''}">
-                        <h4 class="font-semibold text-gray-800 mb-2">${m.nama_kegiatan}</h4>
-                        <div class="space-y-1 text-sm text-gray-600">
-                            <div class="flex items-center"><span class="mr-2">⏰</span><span>Waktu: ${m.waktu_mulai} - ${m.waktu_selesai}</span></div>
-                            <div class="flex items-center"><span class="mr-2">📍</span><span>Ruangan: ${m.ruangan.nama_ruangan}</span></div>
-                            <div class="flex items-center"><span class="mr-2">👤</span><span>Oleh: ${m.user.name}</span></div>
-                            <div class="flex items-start"><span class="mr-2">📝</span><span>Status: ${m.status}</span></div>
-                        </div>
-                    </div>`;
+                        // Format waktu mulai dan selesai ke format HH:MM
+                        const waktuMulai = new Date(m.waktu_mulai).toLocaleTimeString('id-ID', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        const waktuSelesai = new Date(m.waktu_selesai).toLocaleTimeString('id-ID', {
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+
+                        meetingHtml += `<div class="border-l-4 border-blue-500 pl-4 py-3 ${i > 0 ? 'mt-4' : ''}">
+                            <h4 class="font-semibold text-gray-800 mb-2">${m.nama_kegiatan}</h4>
+                            
+                            <div class="grid grid-cols-3 gap-x-2 gap-y-1 text-sm text-gray-600">
+                                
+                                <span class="font-medium text-gray-800">Waktu</span>
+                                <span class="col-span-2">: ${waktuMulai} - ${waktuSelesai}</span>
+                                
+                                <span class="font-medium text-gray-800">Ruangan</span>
+                                <span class="col-span-2">: ${m.ruangan.nama_ruangan}</span>
+
+                                <span class="font-medium text-gray-800">Oleh</span>
+                                <span class="col-span-2">: ${m.user.name}</span>
+
+                                <span class="font-medium text-gray-800">Status</span>
+                                <span class="col-span-2">: ${m.status}</span>
+
+                            </div>
+                        </div>`;
                     });
-                    content.innerHTML = html;
+                    content.innerHTML = html + meetingHtml;
                 } else {
                     content.innerHTML = `<div class="text-center py-8 text-gray-500">
                         <p>Tidak ada rapat pada tanggal ${selectedDate} ${monthNames[currentMonth]} ${currentYear}</p>
@@ -719,13 +749,14 @@
             }
         }
 
+
         function showPemesananForm() {
             document.getElementById('tanggal').value = formatDate(currentYear, currentMonth, selectedDate);
             toggleModal('detailModal', false);
             setTimeout(() => toggleModal('formPemesananModal', true), 150);
         }
 
-        
+
         function openPemesananDetail(element) {
             // 1. Ambil dan parse data dari atribut data-pemesanan
             const pemesanan = JSON.parse(element.getAttribute('data-pemesanan'));
