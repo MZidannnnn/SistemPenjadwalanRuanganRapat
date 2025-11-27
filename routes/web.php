@@ -29,17 +29,25 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('dashboard');
     });
 
+    Route::middleware('role:SKPD')->group(function () {
+        Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    });
+    Route::middleware('role:admin')->group(function () {
+        Route::post('/ruangan', [RuanganController::class, 'store'])->name('ruangan.store');
+        Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
+        Route::put('/ruangan/{ruangan}', [RuanganController::class, 'update'])->name('ruangan.update');
+
+        Route::get('/user', [UserController::class, 'index'])->name('user.index');
+        Route::post('/user', [UserController::class, 'store'])->name('user.store');
+        Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
+        Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
+    });
+
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/profile', [ProfileController::class, 'index'])->name('profile.index');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
 
-    // Semua rute terkait pengelolaan ruangan
     Route::get('/ruangan', [RuanganController::class, 'index'])->name('ruangan.index');
-    Route::post('/ruangan', [RuanganController::class, 'store'])->name('ruangan.store');
-    Route::delete('/ruangan/{ruangan}', [RuanganController::class, 'destroy'])->name('ruangan.destroy');
-    Route::put('/ruangan/{ruangan}', [RuanganController::class, 'update'])->name('ruangan.update');
 
-    // Semua rute terkait pengelolaan pemesanan
     Route::get('/pemesanan', [PemesananController::class, 'index'])->name('pemesanan.index');
     Route::post('/pemesanan', [PemesananController::class, 'store'])->name('pemesanan.store');
     Route::delete('/pemesanan/{pemesanan}', [PemesananController::class, 'destroy'])->name('pemesanan.destroy');
@@ -47,12 +55,5 @@ Route::middleware('auth')->group(function () {
     Route::get('/pemesanan/by-date/{date}', [PemesananController::class, 'getByDate'])->name('pemesanan.byDate');
     Route::get('/pemesanan/scheduled-dates/{year}/{month}', [PemesananController::class, 'getScheduledDatesInMonth'])->name('pemesanan.scheduledDates');
 
-    // Semua rute terkait pengelolaan user
-    Route::get('/user', [UserController::class, 'index'])->name('user.index');
-    Route::post('/user', [UserController::class, 'store'])->name('user.store');
-    Route::delete('/user/{user}', [UserController::class, 'destroy'])->name('user.destroy');
-    Route::put('/user/{user}', [UserController::class, 'update'])->name('user.update');
-
-    // Rute untuk logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });

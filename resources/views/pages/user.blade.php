@@ -5,7 +5,13 @@
 {{--  komponen Navbar --}}
 <x-navbar />
 {{-- //komponen Navbar --}}
+
+{{--  komponen Navbar --}}
+<x-notification-gagal-dan-berhasil />
+{{-- //komponen Navbar --}}
 @section('content')
+
+
     <div id="main-content">
         {{-- Header Halaman --}}
         <div class="mb-6">
@@ -175,7 +181,6 @@
                             <option>Pilih Role</option>
                             <option value="SKPD">SKPD</option>
                             <option value="admin">Admin</option>
-                            <option value="pegawai">Pegawai</option>
                         </select>
                     </div>
                     <div>
@@ -273,7 +278,6 @@
                             <option>Pilih Role</option>
                             <option value="SKPD">SKPD</option>
                             <option value="admin">Admin</option>
-                            <option value="pegawai">Pegawai</option>
                         </select>
                     </div>
                     <div>

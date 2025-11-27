@@ -15,10 +15,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->foreignId('ruangan_id')->constrained('ruangan')->onDelete('cascade');
-            $table->string('nama_kegiatan');
+            $table->string('nama_kegiatan', 50);
             $table->dateTime('waktu_mulai');
             $table->dateTime('waktu_selesai');
-            // Enum untuk status peminjaman
             $table->enum('status', ['dijadwalkan', 'selesai', 'dibatalkan'])->default('dijadwalkan');
             $table->timestamps();
         });

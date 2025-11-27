@@ -45,7 +45,7 @@ class StorePemesananRequest extends FormRequest
     {
         return [
             'ruangan_id'    => ['required', 'exists:ruangan,id'],
-            'nama_kegiatan' => ['required', 'string', 'max:255'],
+            'nama_kegiatan' => ['required', 'string', 'max:50'],
             'waktu_mulai' => ['required', 'date', 'before:waktu_selesai'],
             'waktu_selesai' => ['required', 'date', 'after:waktu_mulai'],
         ];

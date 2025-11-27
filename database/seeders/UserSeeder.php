@@ -15,7 +15,7 @@ class UserSeeder extends Seeder
     {
         //
                 // Membuat 20 user dengan role 'SKPD' atau 'pegawai' secara acak
-        User::factory(20)->create();
+        // User::factory(20)->create();
 
     }
 }

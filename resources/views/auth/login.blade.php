@@ -128,7 +128,7 @@
 
 </body>
 
-{{-- SCRIPT JAVASCRIPT --}}
+
 <script>
     const togglePassword = document.getElementById('togglePassword');
     const passwordInput = document.getElementById('passwordInput');
@@ -136,11 +136,11 @@
     const eyeClosedContainer = document.getElementById('eyeClosedContainer');
 
     togglePassword.addEventListener('click', function() {
-        // Toggle the type attribute of the password input
+
         const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
         passwordInput.setAttribute('type', type);
 
-        // Toggle the visibility of the icon containers
+
         eyeOpenContainer.classList.toggle('hidden');
         eyeClosedContainer.classList.toggle('hidden');
     });

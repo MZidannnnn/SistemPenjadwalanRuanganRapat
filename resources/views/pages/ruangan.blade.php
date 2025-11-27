@@ -5,6 +5,10 @@
 {{--  komponen Navbar --}}
 <x-navbar />
 {{-- //komponen Navbar --}}
+
+{{--  komponen Navbar --}}
+<x-notification-gagal-dan-berhasil />
+{{-- //komponen Navbar --}}
 @section('content')
     <div id="main-content">
         {{-- Header Halaman --}}

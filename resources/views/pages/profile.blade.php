@@ -4,6 +4,9 @@
 
 <x-navbar />
 
+{{--  komponen Navbar --}}
+<x-notification-gagal-dan-berhasil />
+{{-- //komponen Navbar --}}
 @section('content')
     <div class="container mx-auto px-4 sm:px-6 lg:px-8 pt-0.5 pb-8">
         <div class="max-w-2xl mx-auto">
@@ -63,6 +66,16 @@
                             @enderror
                         </div>
 
+                        <div>
+                            <label for="jabatan" class="block text-sm font-medium text-gray-700">Jabatan</label>
+                            <input type="text" name="jabatan" id="jabatan"
+                                value="{{ old('jabatan', auth()->user()->jabatan) }}" readonly
+                                class="mt-1 block w-full py-2 px-3 border border-gray-300 rounded-md shadow-sm @error('jabatan') border-red-500 @enderror">
+                            @error('jabatan')
+                                <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
                         {{-- Password --}}
                         <div>
                             <label for="password" class="block text-sm font-medium text-gray-700">Password Baru
@@ -101,6 +114,8 @@
                                 <p class="text-sm text-red-600 mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
+
                     </div>
 
                     {{-- Tombol Simpan --}}

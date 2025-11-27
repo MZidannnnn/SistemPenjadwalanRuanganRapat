@@ -6,6 +6,10 @@
 <x-navbar />
 {{-- //komponen Navbar --}}
 
+
+{{--  komponen Navbar --}}
+<x-notification-gagal-dan-berhasil />
+{{-- //komponen Navbar --}}
 @section('content')
 
     @push('styles')
@@ -91,12 +95,20 @@
         <div class="mt-12">
             <h2 class="text-xl font-bold text-gray-800">Daftar Pemesanan</h2>
 
-            {{-- Kolom Pencarian --}}
-            <form action="{{ route('pemesanan.index') }}" method="GET" class="mt-6 mb-4">
+            {{-- Container Utama: Flexbox untuk Search (Kiri) dan Filter (Kanan) --}}
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6 mt-6">
 
-                <div class="mt-6 mb-4">
+                {{-- 1. Kolom Pencarian (Kiri) --}}
+                {{-- 'w-full md:max-w-md' membatasi lebar search agar tidak terlalu panjang tapi tetap responsif --}}
+                <form action="{{ route('pemesanan.index') }}" method="GET" class="w-full md:max-w-md">
+
+                    {{-- Pertahankan filter tanggal saat searching --}}
+                    @if (request('start_date'))
+                        <input type="hidden" name="start_date" value="{{ request('start_date') }}">
+                    @endif
+
                     <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-3">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                             <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                 fill="currentColor">
                                 <path fill-rule="evenodd"
@@ -104,11 +116,18 @@
                                     clip-rule="evenodd" />
                             </svg>
                         </span>
+                        {{-- Hapus margin mt/mb, ubah width jadi w-full --}}
                         <input type="text" placeholder="Cari jadwal..." name="search" value="{{ request('search') }}"
-                            class="w-full md:w-1/3 pl-10 pr-4 py-2 border bg-white border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-150">
                     </div>
+                </form>
+
+                {{-- 2. Komponen Filter (Kanan) --}}
+                <div class="w-full md:w-auto">
+                    <x-filter-pemesanan :route="route('pemesanan.index')" />
                 </div>
-            </form>
+
+            </div>
 
             {{-- Tabel Pemesanan (Style Baru) --}}
             <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
@@ -466,8 +485,6 @@
                     </div>
 
                     <div class="mt-6 flex justify-end gap-3">
-                        <button type="button" onclick="toggleModal('formPemesananModal', false)"
-                            class="bg-gray-200 text-gray-800 font-semibold px-4 py-2 rounded-full">Batal</button>
                         <button type="submit" class="bg-blue-600 text-white font-semibold px-4 py-2 rounded-full">Pesan
                             Sekarang</button>
                     </div>

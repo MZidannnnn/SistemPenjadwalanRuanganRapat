@@ -1,7 +1,10 @@
 @extends('layouts.app')
 
-@section('title', 'Dashboard Admin')
-
+@if (Auth::user()->role == 'admin')
+    @section('title', 'Dashboard Admin')
+@else
+    @section('title', 'Dashboard SKPD')
+@endif
 
 {{--  komponen Navbar --}}
 <x-navbar />
@@ -203,15 +206,13 @@
 
     </div>
     {{-- modal detail saat diklik tabel jadwal hari ini --}}
-    <div id="pemesananDetailModal"
-        class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
+    <div id="pemesananDetailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden items-center justify-center p-4"
         onclick="toggleModal('pemesananDetailModal', false)">
         <div class="bg-white rounded-xl shadow-2xl m-4 max-w-lg w-full" onclick="event.stopPropagation()">
             <div class="p-6">
                 <div class="flex justify-between items-center mb-4">
                     <h3 class="text-xl font-bold text-gray-800">Detail Pemesanan</h3>
-                    <button onclick="toggleModal('pemesananDetailModal', false)"
-                        class="text-gray-400 hover:text-gray-600">
+                    <button onclick="toggleModal('pemesananDetailModal', false)" class="text-gray-400 hover:text-gray-600">
                         <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             stroke-width="1.5" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -260,8 +261,7 @@
                                         type="text" placeholder="Cari ruangan..." autocomplete="off" readonly>
                                     <div id="ruangan-list-edit" class="max-h-56 overflow-y-auto">
                                         @foreach ($ruangans as $ruangan)
-                                            <div data-id="{{ $ruangan->id }}"
-                                                data-name="{{ $ruangan->nama_ruangan }}"
+                                            <div data-id="{{ $ruangan->id }}" data-name="{{ $ruangan->nama_ruangan }}"
                                                 class="ruangan-item block px-4 py-2 text-gray-700 hover:bg-gray-100 active:bg-blue-100 cursor-pointer rounded-md">
                                                 {{ $ruangan->nama_ruangan }}</div>
                                         @endforeach

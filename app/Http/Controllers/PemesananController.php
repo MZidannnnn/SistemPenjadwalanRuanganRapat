@@ -13,15 +13,21 @@ class PemesananController extends Controller
 {
     public function index(Request $request)
     {
-        // Jalankan update status 'selesai' secara just-in-time
         Pemesanan::where('status', 'dijadwalkan')
             ->where('waktu_selesai', '<', now())
             ->update(['status' => 'selesai']);
 
         // Memulai query dasar dengan relasi yang dibutuhkan
         $query = Pemesanan::with(['ruangan', 'user']);
+        $user = Auth::user();
 
-        $query->where('user_id', Auth::id());
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
+
+        if ($request->filled('start_date')) {
+            $query->whereDate('waktu_mulai', '=', $request->start_date);
+        }
 
         // Cek jika ada input pencarian
         if ($request->filled('search')) {
